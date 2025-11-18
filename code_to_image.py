@@ -4,7 +4,8 @@
 Этот скрипт генерирует высококачественные изображения из исходного кода,
 используя Pygments и Pillow.
 
-Версия 4.0:
+Версия 4.1:
+- Добавлена поддержка локальных TTF шрифтов из папки asset/fonts/
 - Добавлена полная настройка нумерации строк (фон, цвет, отступы).
 - Фон нумерации по умолчанию сливается с фоном стиля (как в IDE).
 
@@ -21,6 +22,9 @@ import pygments
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import ImageFormatter
 from pygments.styles import get_style_by_name
+
+# Импортируем менеджер шрифтов
+from font_manager import get_font_path
 
 # --- 1. Функция-оркестратор ---
 
@@ -75,10 +79,21 @@ def create_code_screenshot(code_string, language, output_file, **options):
     # --- B: Масштабирование (как мы и договорились) ---
     scale = options.get("scale_factor", 3)
 
-    font_name = options.get("font_name", "Consolas")
+    # --- C: ШРИФТ - теперь с поддержкой локальных TTF ---
+    font_name_input = options.get("font_name", "JetBrainsMono")
+
+    try:
+        # Получаем путь к шрифту (абсолютный для TTF или имя для системного)
+        font_path = get_font_path(font_name_input)
+        print(f"Используется шрифт: {font_name_input} ({font_path})")
+    except (ValueError, FileNotFoundError) as e:
+        print(f"Предупреждение: {e}")
+        print("Используется системный шрифт Consolas")
+        font_path = "Consolas"
+
     font_size = options.get("font_size", 18) * scale
 
-    # --- C: НОВЫЕ НАСТРОЙКИ НУМЕРАЦИИ ---
+    # --- D: НОВЫЕ НАСТРОЙКИ НУМЕРАЦИИ ---
     line_numbers = options.get("line_numbers", True)
 
     # Отступ (базовый) * scale. Теперь ты можешь передать 'line_pad': 5
@@ -100,7 +115,7 @@ def create_code_screenshot(code_string, language, output_file, **options):
     formatter = ImageFormatter(
         style=style_inst,
         full=True,
-        font_name=font_name,
+        font_name=font_path,  # <-- Теперь это может быть полный путь к TTF
         font_size=font_size,
         image_pad=pad,
         # --- Параметры нумерации ---
@@ -139,7 +154,7 @@ def create_code_screenshot(code_string, language, output_file, **options):
 
     except Exception as e:
         print(f"Ошибка при генерации или сохранении файла: {e}")
-        print(f"Возможная причина: шрифт '{font_name}' не найден в системе.")
+        print(f"Проверьте корректность параметров и доступность шрифта.")
 
 
 # --- Демонстрационный блок для запуска скрипта ---
@@ -159,7 +174,7 @@ interface UserProfile {
 
     ts_options = {
         "style": "dracula",
-        "font_name": "Consolas",
+        "font_name": "JetBrainsMono",  # <-- Используем локальный шрифт
         "font_size": 18,
         "pad": 10,
         "format": "WEBP",

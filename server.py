@@ -3,6 +3,7 @@
 
 from mcp.server.fastmcp import FastMCP
 from code_to_image import create_code_screenshot
+from font_manager import list_available_fonts
 import os
 
 mcp = FastMCP("Code Screenshot Tool")
@@ -17,7 +18,7 @@ def generate_code_screenshot(
     font_size: int = 18,
     scale_factor: int = 3,
     line_numbers: bool = True,
-    font_name: str = "Consolas",
+    font_name: str = "JetBrainsMono",  # <-- Теперь по умолчанию JetBrains
     format: str = "WEBP",
 ) -> dict:
     """Создать высококачественный скриншот кода.
@@ -30,7 +31,7 @@ def generate_code_screenshot(
         font_size: Базовый размер шрифта (будет умножен на scale_factor)
         scale_factor: Фактор масштабирования для качества (3-5 рекомендуется)
         line_numbers: Показывать нумерацию строк
-        font_name: Имя системного шрифта (Consolas, Courier New, Monaco, etc.)
+        font_name: Имя шрифта (JetBrainsMono, FiraCode, CascadiaCode, Consolas)
         format: Формат изображения (WEBP, PNG, JPEG)
 
     Returns:
@@ -80,13 +81,15 @@ def generate_code_screenshot(
             "file_size_kb": round(file_size / 1024, 2),
             "format": format,
             "scale_factor": scale_factor,
+            "font_used": font_name,
         }
 
     except Exception as e:
         return {
             "success": False,
             "error": str(e),
-            "suggestion": "Проверьте доступность шрифта в системе и корректность параметров",
+            "suggestion": "Проверьте корректность параметров и доступность шрифта",
+            "available_fonts": list_available_fonts(),
         }
 
 
