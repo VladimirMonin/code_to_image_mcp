@@ -4,7 +4,11 @@
 ' ============================================================================
 ' Эта тема создана для code_to_image_mcp проекта
 ' Использует современные цвета и шрифты JetBrains Mono
+' ЖЕСТКО использует Smetana layout (без Graphviz)
 ' ============================================================================
+
+' ПРИНУДИТЕЛЬНАЯ установка Smetana для всех диаграмм
+!pragma layout smetana
 
 skinparam backgroundColor #1E1E1E
 skinparam defaultFontName JetBrains Mono
