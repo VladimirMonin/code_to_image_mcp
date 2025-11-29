@@ -1,0 +1,168 @@
+@startuml
+' ============================================================================
+' PlantUML Modern Theme - Default Dark Style
+' ============================================================================
+' Эта тема создана для code_to_image_mcp проекта
+' Использует современные цвета и шрифты JetBrains Mono
+' ЖЕСТКО использует Smetana layout (без Graphviz)
+' ============================================================================
+
+' ПРИНУДИТЕЛЬНАЯ установка Smetana для всех диаграмм
+!pragma layout smetana
+
+skinparam backgroundColor #1E1E1E
+skinparam defaultFontName JetBrains Mono
+skinparam defaultFontSize 14
+skinparam defaultFontColor #D4D4D4
+
+' ============================================================================
+' Class Diagrams
+' ============================================================================
+skinparam class {
+    BackgroundColor #2D2D30
+    BorderColor #007ACC
+    BorderThickness 2
+    ArrowColor #569CD6
+    FontColor #D4D4D4
+    FontSize 14
+    AttributeFontColor #9CDCFE
+    StereotypeFontColor #4EC9B0
+    HeaderBackgroundColor #007ACC
+    HeaderFontColor #FFFFFF
+}
+
+' ============================================================================
+' Use Case Diagrams
+' ============================================================================
+skinparam usecase {
+    BackgroundColor #2D2D30
+    BorderColor #569CD6
+    BorderThickness 2
+    ArrowColor #569CD6
+    FontColor #D4D4D4
+    FontSize 14
+}
+
+skinparam actor {
+    BackgroundColor #2D2D30
+    BorderColor #4EC9B0
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' ============================================================================
+' Sequence Diagrams
+' ============================================================================
+skinparam sequence {
+    ArrowColor #569CD6
+    ArrowThickness 2
+    ActorBackgroundColor #2D2D30
+    ActorBorderColor #4EC9B0
+    ActorBorderThickness 2
+    ActorFontColor #D4D4D4
+    ParticipantBackgroundColor #2D2D30
+    ParticipantBorderColor #007ACC
+    ParticipantBorderThickness 2
+    ParticipantFontColor #D4D4D4
+    LifeLineBorderColor #569CD6
+    LifeLineBorderThickness 2
+    BoxBackgroundColor #252526
+    BoxBorderColor #007ACC
+    BoxFontColor #D4D4D4
+}
+
+' ============================================================================
+' Activity Diagrams
+' ============================================================================
+skinparam activity {
+    BackgroundColor #2D2D30
+    BorderColor #569CD6
+    BorderThickness 2
+    ArrowColor #569CD6
+    ArrowThickness 2
+    FontColor #D4D4D4
+    DiamondBackgroundColor #3C3C3C
+    DiamondBorderColor #C586C0
+    DiamondFontColor #D4D4D4
+    StartColor #4EC9B0
+    EndColor #F48771
+    BarColor #007ACC
+}
+
+' ============================================================================
+' State Diagrams
+' ============================================================================
+skinparam state {
+    BackgroundColor #2D2D30
+    BorderColor #569CD6
+    BorderThickness 2
+    ArrowColor #569CD6
+    ArrowThickness 2
+    FontColor #D4D4D4
+    StartColor #4EC9B0
+    EndColor #F48771
+}
+
+' ============================================================================
+' Component Diagrams
+' ============================================================================
+skinparam component {
+    BackgroundColor #2D2D30
+    BorderColor #569CD6
+    BorderThickness 2
+    ArrowColor #569CD6
+    FontColor #D4D4D4
+    InterfaceBackgroundColor #3C3C3C
+    InterfaceBorderColor #4EC9B0
+}
+
+' ============================================================================
+' Package/Namespace Diagrams
+' ============================================================================
+skinparam package {
+    BackgroundColor #252526
+    BorderColor #007ACC
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' ============================================================================
+' Object Diagrams
+' ============================================================================
+skinparam object {
+    BackgroundColor #2D2D30
+    BorderColor #569CD6
+    BorderThickness 2
+    ArrowColor #569CD6
+    FontColor #D4D4D4
+}
+
+' ============================================================================
+' Note Styling
+' ============================================================================
+skinparam note {
+    BackgroundColor #3C3C3C
+    BorderColor #DCDCAA
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' ============================================================================
+' Rounded Corners
+' ============================================================================
+skinparam roundCorner 8
+
+' ============================================================================
+' Shadows
+' ============================================================================
+skinparam shadowing false
+
+' ============================================================================
+' Stereotypes
+' ============================================================================
+skinparam stereotypeCBackgroundColor #007ACC
+skinparam stereotypeABackgroundColor #4EC9B0
+skinparam stereotypeIBackgroundColor #C586C0
+skinparam stereotypeEBackgroundColor #DCDCAA
+
+@enduml
