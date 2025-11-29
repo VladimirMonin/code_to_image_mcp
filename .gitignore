@@ -3,6 +3,9 @@
 .env
 .DS_Store
 
+# Маркер установки шрифтов (локальный для каждой машины)
+.fonts_installed.json
+
 # Игнорируем output файлы тестов
 tests/output/*
 !tests/output/.gitkeep

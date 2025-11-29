@@ -25,6 +25,8 @@ import sys
 from pathlib import Path
 from typing import Literal
 
+from font_initializer import ensure_fonts_initialized
+
 logger = logging.getLogger(__name__)
 
 # Константы путей
@@ -159,6 +161,24 @@ def render_diagram_from_string(
     """
     logger.info("📐 Начало рендеринга PlantUML диаграммы")
 
+    # Инициализация шрифтов (выполняется один раз, затем кешируется)
+    logger.debug("🔍 Проверка инициализации кастомных шрифтов")
+    font_init_result = ensure_fonts_initialized()
+
+    if not font_init_result["success"]:
+        logger.error(f"❌ Ошибка инициализации шрифтов: {font_init_result['error']}")
+        raise JavaNotFoundError(font_init_result["error"])
+
+    if font_init_result["already_installed"]:
+        logger.debug(
+            f"✅ Шрифты уже установлены: {len(font_init_result['fonts'])} файлов"
+        )
+    else:
+        logger.info(
+            f"💉 Шрифты установлены в JRE: {len(font_init_result['fonts'])} файлов "
+            f"({font_init_result['java_home']})"
+        )
+
     java_version = ensure_java_environment()
 
     if not PLANTUML_JAR.exists():
@@ -167,7 +187,7 @@ def render_diagram_from_string(
             f"PlantUML JAR не найден: {PLANTUML_JAR}\n"
             "Запустите скрипт установки или скачайте вручную."
         )
-    
+
     logger.debug(f"📦 PlantUML JAR: {PLANTUML_JAR}")
 
     output_path = Path(output_path)
@@ -233,7 +253,9 @@ def render_diagram_from_string(
             )
 
         if len(stdout_data) < 100:
-            logger.error(f"❌ PlantUML создал слишком маленький файл: {len(stdout_data)} bytes")
+            logger.error(
+                f"❌ PlantUML создал слишком маленький файл: {len(stdout_data)} bytes"
+            )
             raise PlantUMLRenderError(
                 f"PlantUML создал слишком маленький файл ({len(stdout_data)} bytes). "
                 "Возможно, в коде есть ошибки."

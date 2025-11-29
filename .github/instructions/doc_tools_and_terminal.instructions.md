@@ -21,4 +21,6 @@ ID в Context7 `/websites/crashedmind_github_io_plantumlhitchhikersguide` - Hitc
 ID в Context7 `/python-pillow/pillow` - Pillow (официальный репозиторий проекта)
 ID в Context7 `/websites/pillow_readthedocs_io_en_stable` - Документация Pillow (ReadTheDocs)
 
+Мы используем Pytest и для тестов есть пакет. Не мусорить одноразовыми скриптами в корне проекта. Нужен тест - напиши тест.
+
 ---
