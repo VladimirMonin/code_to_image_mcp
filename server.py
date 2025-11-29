@@ -9,6 +9,7 @@ from diagram_renderer import (
     ensure_java_environment,
     JavaNotFoundError,
     PlantUMLRenderError,
+    PlantUMLSyntaxError,
 )
 import os
 
@@ -349,6 +350,14 @@ def generate_architecture_diagram(
 
         return result
 
+    except PlantUMLSyntaxError as e:
+        return {
+            "success": False,
+            "error": "Синтаксическая ошибка в PlantUML коде",
+            "details": str(e),
+            "suggestion": "Проверьте правильность синтаксиса PlantUML. "
+            "Убедитесь, что все теги закрыты и команды написаны корректно.",
+        }
     except PlantUMLRenderError as e:
         return {
             "success": False,

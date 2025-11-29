@@ -12,6 +12,7 @@ from diagram_renderer import (
     ensure_java_environment,
     JavaNotFoundError,
     PlantUMLRenderError,
+    PlantUMLSyntaxError,
 )
 
 
@@ -110,8 +111,6 @@ class TestCyrillicSupport:
         """Рендеринг классовой диаграммы с кириллицей."""
         code = """
 @startuml
-!pragma layout smetana
-
 class Пользователь {
   -имя: str
   -email: str
@@ -176,7 +175,6 @@ stop
         """Рендеринг use case диаграммы."""
         code = """
 @startuml
-!pragma layout smetana
 left to right direction
 actor Пользователь
 actor Администратор
@@ -205,7 +203,6 @@ rectangle Система {
         """Рендеринг component диаграммы."""
         code = """
 @startuml
-!pragma layout smetana
 package "Web Application" {
   [Frontend] as FE
   [Backend API] as BE
