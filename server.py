@@ -4,6 +4,12 @@
 from mcp.server.fastmcp import FastMCP
 from code_to_image import create_code_screenshot
 from font_manager import list_available_fonts
+from diagram_renderer import (
+    render_diagram_from_string,
+    ensure_java_environment,
+    JavaNotFoundError,
+    PlantUMLRenderError,
+)
 import os
 
 # Константы
@@ -266,6 +272,103 @@ def generate_file_screenshot(
             "success": False,
             "error": str(e),
             "suggestion": "Проверьте доступность файла и корректность параметров",
+        }
+
+
+@mcp.tool()
+def generate_architecture_diagram(
+    diagram_code: str,
+    output_path: str,
+    format: str = "png",
+    theme_name: str = "default",
+) -> dict:
+    """Сгенерировать архитектурную диаграмму из PlantUML кода.
+
+    Этот инструмент позволяет создавать UML диаграммы (классов, последовательностей,
+    компонентов, активностей и т.д.) из текстового описания PlantUML.
+
+    ⚠️ ВАЖНО: Требуется установленная Java (JRE 8+).
+    Если Java не установлена, установите её:
+    - macOS: brew install openjdk
+    - Windows: https://adoptium.net/
+    - Linux: sudo apt-get install default-jre
+
+    Args:
+        diagram_code: PlantUML код диаграммы (может начинаться с @startuml или без)
+        output_path: АБСОЛЮТНЫЙ путь к выходному файлу (например: C:/Users/user/diagram.png)
+        format: Формат изображения (png, svg, eps, pdf)
+        theme_name: Имя темы оформления (default, или None для отключения темы)
+
+    Returns:
+        Словарь с информацией о созданной диаграмме или ошибке
+
+    Example:
+        generate_architecture_diagram(
+            diagram_code='''
+            @startuml
+            Alice -> Bob: Authentication Request
+            Bob --> Alice: Authentication Response
+            @enduml
+            ''',
+            output_path="/Users/user/sequence.png",
+            format="png"
+        )
+    """
+    try:
+        # Проверка абсолютного пути
+        if not os.path.isabs(output_path):
+            return {
+                "success": False,
+                "error": "Путь должен быть абсолютным",
+                "suggestion": f"Используйте абсолютный путь, например: C:/Users/user/{output_path}",
+            }
+
+        # Проверяем Java
+        try:
+            java_version = ensure_java_environment()
+        except JavaNotFoundError as e:
+            return {
+                "success": False,
+                "error": "Java не найдена в системе",
+                "details": str(e),
+                "suggestion": "Установите JRE (Java Runtime Environment) версии 8 или выше",
+                "install_instructions": {
+                    "macOS": "brew install openjdk",
+                    "Windows": "https://adoptium.net/",
+                    "Linux": "sudo apt-get install default-jre",
+                },
+            }
+
+        # Вызываем рендеринг
+        result = render_diagram_from_string(
+            diagram_code=diagram_code,
+            output_path=output_path,
+            format=format,
+            theme_name=theme_name,
+        )
+
+        return result
+
+    except PlantUMLRenderError as e:
+        return {
+            "success": False,
+            "error": "Ошибка рендеринга PlantUML диаграммы",
+            "details": str(e),
+            "suggestion": "Проверьте синтаксис PlantUML кода. "
+            "PlantUML часто показывает ошибки прямо на сгенерированной картинке.",
+        }
+    except FileNotFoundError as e:
+        return {
+            "success": False,
+            "error": "Файл или ресурс не найден",
+            "details": str(e),
+            "suggestion": "Проверьте наличие PlantUML JAR файла и темы оформления",
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "suggestion": "Проверьте корректность параметров и доступность ресурсов",
         }
 
 
