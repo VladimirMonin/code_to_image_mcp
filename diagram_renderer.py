@@ -158,7 +158,7 @@ def render_diagram_from_string(
         FileNotFoundError: Если PlantUML JAR или тема не найдены.
     """
     logger.info("📐 Начало рендеринга PlantUML диаграммы")
-    
+
     java_version = ensure_java_environment()
 
     if not PLANTUML_JAR.exists():
@@ -273,7 +273,7 @@ def render_diagram_from_string(
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    
+
     print("=== PlantUML Renderer Test ===")
 
     try:
