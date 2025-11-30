@@ -3,7 +3,8 @@
 
 Предоставляет инструменты для:
 - Генерации скриншотов кода из строки и файла
-- Генерации UML диаграмм через PlantUML
+- Извлечения и скриншотинга конкретных функций/классов из файлов (AST)
+- Генерации UML диаграмм через PlantUML (из строки и файла)
 - Получения справки по синтаксису PlantUML
 - Просмотра доступных тем оформления
 
@@ -11,9 +12,13 @@
     generate_code_screenshot
         Создаёт скриншот кода из строки.
     generate_file_screenshot
-        Создаёт скриншот кода из файла.
+        Создаёт скриншот кода из файла (⚠️ лимит 200 строк).
+    generate_entity_screenshot
+        Извлекает и создаёт скриншот конкретной функции/класса/метода (✨ без лимита).
     generate_architecture_diagram
         Генерирует UML диаграмму из PlantUML кода.
+    generate_diagram_from_file
+        Генерирует UML диаграмму из .puml файла.
     get_plantuml_guide
         Возвращает справку по синтаксису PlantUML.
     list_plantuml_themes
@@ -26,6 +31,7 @@ import os
 from mcp.server.fastmcp import FastMCP
 
 from src.code_to_image import create_code_screenshot
+from src.code_extractor import extract_code_entity, list_entities, EntityNotFoundError
 from src.diagram_renderer import (
     JavaNotFoundError,
     PlantUMLRenderError,
@@ -301,6 +307,131 @@ def generate_file_screenshot(
 
 
 @mcp.tool()
+def generate_entity_screenshot(
+    file_path: str,
+    entity_name: str,
+    output_path: str,
+    include_decorators: bool = True,
+    detail_level: str = "High",
+    image_format: str = "webp",
+    style: str = "monokai",
+    font_size: int = 18,
+    line_numbers: bool = True,
+    font_name: str = "JetBrainsMono",
+) -> dict:
+    """Извлекает и создаёт скриншот конкретной функции/класса/метода из Python файла.
+
+    ✨ УМНЫЙ ИНСТРУМЕНТ для точечной работы с большими файлами без ограничения на размер.
+    Использует AST (Abstract Syntax Tree) для хирургического извлечения кода.
+
+    Use this to extract specific functions or classes from large files without reading
+    the whole file into context. Supports format 'ClassName.method_name' for methods.
+
+    Args:
+        file_path: АБСОЛЮТНЫЙ путь к Python файлу.
+        entity_name: Имя сущности для извлечения:
+            - "function_name" для функции
+            - "ClassName" для класса целиком
+            - "ClassName.method_name" для метода класса
+        output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
+        include_decorators: Включать декораторы (@tool, @pytest.fixture, etc) в скриншот.
+        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        image_format: Формат изображения ('webp', 'png', 'jpeg').
+        style: Стиль подсветки (monokai, dracula, github-dark, vim).
+        font_size: Базовый размер шрифта (умножается на detail_level).
+        line_numbers: Показывать нумерацию строк.
+        font_name: Имя шрифта (JetBrainsMono, FiraCode, CascadiaCode, Consolas).
+
+    Returns:
+        Словарь с информацией о созданном изображении и метаданными сущности.
+    """
+    logger.info(
+        f"📥 Получен запрос generate_entity_screenshot: {entity_name} из {file_path}"
+    )
+
+    try:
+        # Извлекаем код сущности через AST
+        extracted_code = extract_code_entity(
+            file_path=file_path,
+            entity_name=entity_name,
+            include_decorators=include_decorators,
+        )
+
+        logger.debug(f"✅ Извлечено {len(extracted_code)} символов кода")
+
+        # Конвертируем detail_level в scale_factor
+        scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+
+        # Генерируем скриншот извлечённого кода
+        result = _generate_screenshot_from_code(
+            code=extracted_code,
+            language="python",  # Всегда Python для этого инструмента
+            output_path=output_path,
+            style=style,
+            font_size=font_size,
+            scale_factor=scale_factor,
+            line_numbers=line_numbers,
+            font_name=font_name,
+            format=image_format,
+        )
+
+        # Добавляем метаданные об извлечении
+        if result.get("success"):
+            result["entity_extracted"] = entity_name
+            result["source_file"] = file_path
+            result["decorators_included"] = include_decorators
+            result["extraction_method"] = "AST"
+
+        return result
+
+    except EntityNotFoundError as e:
+        logger.error(f"🔍 Сущность не найдена: {e}")
+        # Пытаемся показать список доступных сущностей для помощи
+        try:
+            entities = list_entities(file_path)
+            return {
+                "success": False,
+                "error": str(e),
+                "suggestion": (
+                    "Проверьте правильность имени сущности. "
+                    "Для методов используйте формат 'ClassName.method_name'"
+                ),
+                "available_entities": entities,
+            }
+        except Exception:
+            return {
+                "success": False,
+                "error": str(e),
+                "suggestion": "Проверьте правильность имени сущности и структуру файла",
+            }
+
+    except FileNotFoundError:
+        logger.error(f"❌ Файл не найден: {file_path}")
+        return {
+            "success": False,
+            "error": f"Файл не найден: {file_path}",
+            "suggestion": "Проверьте правильность пути к файлу",
+        }
+
+    except SyntaxError as e:
+        logger.error(f"💥 Синтаксическая ошибка в Python файле: {e}")
+        return {
+            "success": False,
+            "error": "Синтаксическая ошибка в Python файле",
+            "details": str(e),
+            "suggestion": "Исправьте синтаксические ошибки в исходном файле",
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Ошибка извлечения сущности: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "suggestion": "Проверьте структуру файла и корректность параметров",
+        }
+
+
+@mcp.tool()
 def generate_architecture_diagram(
     diagram_code: str,
     output_path: str,
@@ -402,6 +533,136 @@ def generate_architecture_diagram(
             "success": False,
             "error": str(e),
             "suggestion": "Проверьте корректность параметров и доступность ресурсов",
+        }
+
+
+@mcp.tool()
+def generate_diagram_from_file(
+    file_path: str,
+    output_path: str,
+    detail_level: str = "High",
+    image_format: str = "png",
+    theme_name: str = "default",
+) -> dict:
+    """Генерирует UML диаграмму из сохранённого .puml файла.
+
+    Use this when PlantUML diagram code is already saved in a file. This is the preferred
+    way for complex diagrams to avoid generation errors and save tokens.
+
+    ⚠️ ВАЖНО: Требуется Java (JRE 8+).
+
+    Args:
+        file_path: АБСОЛЮТНЫЙ путь к .puml файлу с PlantUML кодом.
+        output_path: АБСОЛЮТНЫЙ путь к выходному файлу изображения.
+        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        image_format: Формат изображения ('png', 'svg', 'eps', 'pdf').
+        theme_name: Имя темы оформления (default или None).
+
+    Returns:
+        Словарь с информацией о созданной диаграмме.
+    """
+    logger.info(f"📥 Получен запрос generate_diagram_from_file: {file_path}")
+
+    try:
+        # Проверка существования файла
+        if not os.path.isabs(file_path):
+            logger.error(f"🚫 Путь к файлу не абсолютный: {file_path}")
+            return {
+                "success": False,
+                "error": "Путь к файлу должен быть абсолютным",
+                "suggestion": f"Используйте абсолютный путь, например: /path/to/{file_path}",
+            }
+
+        if not os.path.exists(file_path):
+            logger.error(f"❌ Файл не найден: {file_path}")
+            return {
+                "success": False,
+                "error": f"Файл не найден: {file_path}",
+                "suggestion": "Проверьте правильность пути к .puml файлу",
+            }
+
+        # Чтение PlantUML кода из файла
+        logger.debug(f"📂 Чтение PlantUML файла: {file_path}")
+        with open(file_path, "r", encoding="utf-8") as f:
+            diagram_code = f.read()
+
+        logger.debug(f"📝 Прочитано {len(diagram_code)} символов PlantUML кода")
+
+        # Проверка Java окружения
+        try:
+            ensure_java_environment()
+        except JavaNotFoundError as e:
+            logger.error("☕ Java не найдена в системе")
+            return {
+                "success": False,
+                "error": "Java не найдена в системе",
+                "details": str(e),
+                "suggestion": "Установите JRE (Java Runtime Environment) версии 8 или выше",
+                "install_instructions": {
+                    "macOS": "brew install openjdk",
+                    "Windows": "https://adoptium.net/",
+                    "Linux": "sudo apt-get install default-jre",
+                },
+            }
+
+        # Конвертируем detail_level в scale_factor
+        scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+
+        # Генерируем диаграмму
+        result = render_diagram_from_string(
+            diagram_code=diagram_code,
+            output_path=output_path,
+            format=image_format,
+            theme_name=theme_name,
+            scale_factor=scale_factor,
+        )
+
+        # Добавляем метаданные об источнике
+        if result.get("success"):
+            result["source_file"] = file_path
+            result["code_length"] = len(diagram_code)
+
+        logger.info(f"📤 Отправлен результат: success={result.get('success')}")
+        return result
+
+    except UnicodeDecodeError:
+        logger.error(f"🌐 Ошибка кодировки файла: {file_path}")
+        return {
+            "success": False,
+            "error": "Не удалось прочитать файл как текст",
+            "suggestion": "Убедитесь, что .puml файл сохранён в UTF-8 кодировке",
+        }
+
+    except PlantUMLSyntaxError as e:
+        logger.error(f"💥 Синтаксическая ошибка PlantUML: {e}")
+        return {
+            "success": False,
+            "error": "Синтаксическая ошибка в PlantUML коде",
+            "details": str(e),
+            "source_file": file_path,
+            "suggestion": (
+                "Проверьте синтаксис PlantUML в файле. "
+                "ПОДСКАЗКА: Вызовите инструмент get_plantuml_guide с нужным типом диаграммы "
+                "для получения справки."
+            ),
+        }
+
+    except PlantUMLRenderError as e:
+        logger.error(f"❌ Ошибка рендеринга PlantUML: {e}")
+        return {
+            "success": False,
+            "error": "Ошибка рендеринга PlantUML диаграммы",
+            "details": str(e),
+            "source_file": file_path,
+            "suggestion": "Проверьте синтаксис PlantUML кода в файле",
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Неожиданная ошибка: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "suggestion": "Проверьте корректность .puml файла и доступность ресурсов",
         }
 
 
