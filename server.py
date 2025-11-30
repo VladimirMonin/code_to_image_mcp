@@ -4,6 +4,8 @@
 Предоставляет инструменты для:
 - Генерации скриншотов кода из строки и файла
 - Генерации UML диаграмм через PlantUML
+- Получения справки по синтаксису PlantUML
+- Просмотра доступных тем оформления
 
 Инструменты MCP:
     generate_code_screenshot
@@ -12,6 +14,10 @@
         Создаёт скриншот кода из файла.
     generate_architecture_diagram
         Генерирует UML диаграмму из PlantUML кода.
+    get_plantuml_guide
+        Возвращает справку по синтаксису PlantUML.
+    list_plantuml_themes
+        Возвращает список доступных тем оформления.
 """
 
 import logging
@@ -28,6 +34,7 @@ from diagram_renderer import (
     render_diagram_from_string,
 )
 from font_manager import list_available_fonts
+from guide_manager import get_guide, list_guides, list_themes
 
 logger = logging.getLogger(__name__)
 
@@ -362,7 +369,12 @@ def generate_architecture_diagram(
             "success": False,
             "error": "Синтаксическая ошибка в PlantUML коде",
             "details": str(e),
-            "suggestion": "Проверьте правильность синтаксиса PlantUML.",
+            "suggestion": (
+                "Проверьте правильность синтаксиса PlantUML. "
+                "ПОДСКАЗКА: Вызовите инструмент get_plantuml_guide с нужным типом диаграммы "
+                "(class, sequence, component, activity) для получения справки по синтаксису "
+                "и стереотипам (<<Core>>, <<Adapter>>, <<Infrastructure>>)."
+            ),
         }
     except PlantUMLRenderError as e:
         logger.error(f"❌ Ошибка рендеринга PlantUML: {e}")
@@ -370,7 +382,11 @@ def generate_architecture_diagram(
             "success": False,
             "error": "Ошибка рендеринга PlantUML диаграммы",
             "details": str(e),
-            "suggestion": "Проверьте синтаксис PlantUML кода.",
+            "suggestion": (
+                "Проверьте синтаксис PlantUML кода. "
+                "ПОДСКАЗКА: Вызовите инструмент get_plantuml_guide с нужным типом диаграммы "
+                "(class, sequence, component, activity) для получения справки по правильному синтаксису."
+            ),
         }
     except FileNotFoundError as e:
         logger.error(f"❌ Файл не найден: {e}")
@@ -387,6 +403,69 @@ def generate_architecture_diagram(
             "error": str(e),
             "suggestion": "Проверьте корректность параметров и доступность ресурсов",
         }
+
+
+@mcp.tool()
+def get_plantuml_guide(
+    diagram_type: str,
+    detail_level: str = "brief",
+) -> dict:
+    """Возвращает справку по синтаксису PlantUML для указанного типа диаграммы.
+
+    Используйте этот инструмент, если не уверены в синтаксисе или получили ошибку
+    при генерации диаграммы.
+
+    Args:
+        diagram_type: Тип диаграммы (class, sequence, component, activity, themes).
+        detail_level: Уровень детализации ('brief' — краткая выжимка, 'detailed' — полная версия).
+
+    Returns:
+        Словарь с содержимым гайда и списком доступных тем.
+    """
+    logger.info(f"📚 Запрос гайда PlantUML: type={diagram_type}, level={detail_level}")
+
+    full = detail_level.lower() == "detailed"
+    guide_content = get_guide(diagram_type, full=full)
+
+    available_guides = list_guides()
+    available_guide_types = [g["type"] for g in available_guides]
+
+    return {
+        "success": True,
+        "diagram_type": diagram_type,
+        "detail_level": detail_level,
+        "content": guide_content,
+        "available_guides": available_guide_types,
+        "hint": "Используйте стереотипы <<Adapter>>, <<Core>>, <<Infrastructure>> для архитектурных диаграмм.",
+    }
+
+
+@mcp.tool()
+def list_plantuml_themes() -> dict:
+    """Возвращает список доступных тем оформления для PlantUML диаграмм.
+
+    Returns:
+        Словарь со списком тем и рекомендациями по выбору.
+    """
+    logger.info("🎨 Запрос списка тем PlantUML")
+
+    themes = list_themes()
+
+    return {
+        "success": True,
+        "themes": themes,
+        "recommendation": (
+            "Используйте 'dark_gold' для презентаций, "
+            "'light_fresh' для печатной документации, "
+            "'default' для общего использования."
+        ),
+        "stereotypes_hint": (
+            "Во всех темах поддерживаются стереотипы: "
+            "<<Adapter>> (входные точки), "
+            "<<Core>> (бизнес-логика), "
+            "<<Infrastructure>> (инфраструктура)."
+        ),
+    }
 
 
 if __name__ == "__main__":

@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "description": "Метаданные гайдов по PlantUML для code_to_image_mcp",
+  "guides": [
+    {
+      "type": "class",
+      "file": "class_diagram.md",
+      "title": "Диаграммы классов",
+      "description": "Синтаксис и стереотипы для диаграмм классов UML"
+    },
+    {
+      "type": "sequence",
+      "file": "sequence_diagram.md",
+      "title": "Диаграммы последовательности",
+      "description": "Синтаксис для sequence-диаграмм с участниками и сообщениями"
+    },
+    {
+      "type": "component",
+      "file": "component_diagram.md",
+      "title": "Диаграммы компонентов",
+      "description": "Архитектурные диаграммы со стереотипами Adapter, Core, Infrastructure"
+    },
+    {
+      "type": "activity",
+      "file": "activity_diagram.md",
+      "title": "Диаграммы активности",
+      "description": "Диаграммы потоков и процессов с условиями и циклами"
+    },
+    {
+      "type": "themes",
+      "file": "themes.md",
+      "title": "Темы оформления",
+      "description": "Доступные темы и их семантика (dark_gold, light_fresh, default)"
+    }
+  ]
+}
