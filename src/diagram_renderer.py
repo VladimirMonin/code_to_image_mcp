@@ -30,6 +30,7 @@ from typing import Literal
 from PIL import Image
 
 from src.font_initializer import ensure_fonts_initialized
+from src.font_manager import GOOGLE_FONTS_URLS
 from src.image_utils import save_image, load_image_from_bytes
 
 logger = logging.getLogger(__name__)
@@ -63,6 +64,122 @@ class PlantUMLRenderError(Exception):
     """Ошибка рендеринга PlantUML диаграммы."""
 
     pass
+
+
+def _extract_font_from_theme(theme_name: str | None) -> str:
+    """Извлекает имя шрифта из файла темы PlantUML.
+
+    Args:
+        theme_name: Имя темы (без расширения .puml).
+
+    Returns:
+        Имя шрифта (JetBrainsMono, FiraCode и т.д.) или "JetBrainsMono" по умолчанию.
+    """
+    if not theme_name:
+        return "JetBrainsMono"
+
+    theme_path = THEMES_DIR / f"{theme_name}.puml"
+
+    if not theme_path.exists():
+        logger.warning(f"⚠️ Тема не найдена: {theme_path}, используем JetBrainsMono")
+        return "JetBrainsMono"
+
+    try:
+        with open(theme_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Ищем строку типа: skinparam defaultFontName "JetBrains Mono"
+        # или: skinparam defaultFontName JetBrainsMono
+        import re
+
+        match = re.search(
+            r'skinparam\s+defaultFontName\s+["\']?([A-Za-z\s]+)["\']?',
+            content,
+            re.MULTILINE,
+        )
+
+        if match:
+            font_name_raw = match.group(1).strip()
+            # Убираем пробелы из имени (JetBrains Mono -> JetBrainsMono)
+            font_name = font_name_raw.replace(" ", "")
+
+            # Убираем возможный мусор после имени (например, если захватило следующую строку)
+            # Оставляем только первое слово/группу слов до переноса строки
+            font_name = font_name.split("\n")[0].split("skinparam")[0].strip()
+
+            logger.debug(f"🔍 Извлечён шрифт из темы '{theme_name}': {font_name}")
+            return font_name
+
+        logger.debug(
+            f"⚠️ Шрифт не найден в теме '{theme_name}', используем JetBrainsMono"
+        )
+        return "JetBrainsMono"
+
+    except Exception as e:
+        logger.warning(f"⚠️ Ошибка чтения темы {theme_name}: {e}")
+        return "JetBrainsMono"
+
+
+def _inject_web_font_into_svg(svg_content: str, font_name: str) -> str:
+    """Внедряет ссылку на Google Fonts внутрь SVG кода.
+
+    Добавляет <defs><style>@import url(...)</style></defs> сразу после открывающего
+    тега <svg>. Это позволяет SVG корректно отображаться в браузерах и на GitHub
+    без установки шрифтов в системе.
+
+    Args:
+        svg_content: Исходный SVG код от PlantUML.
+        font_name: Имя шрифта (JetBrainsMono, FiraCode, CascadiaCode).
+
+    Returns:
+        SVG код с внедрённой ссылкой на Google Fonts или исходный код, если шрифт
+        не поддерживается.
+    """
+    # Очищаем имя шрифта от возможных пробелов
+    clean_name = font_name.replace(" ", "")
+
+    # Получаем URL для шрифта из словаря
+    font_url = GOOGLE_FONTS_URLS.get(clean_name)
+
+    if not font_url:
+        logger.debug(
+            f"⚠️ Шрифт '{clean_name}' не найден в Google Fonts, пропускаем инъекцию"
+        )
+        return svg_content
+
+    # Используем CDATA для защиты URL с амперсандами от XML-парсера
+    # CDATA позволяет использовать & напрямую без экранирования
+    style_block = f"""<defs>
+    <style type="text/css"><![CDATA[
+        @import url('{font_url}');
+    ]]></style>
+</defs>"""
+
+    # Ищем конец открывающего тега <svg ...>
+    # Нужно найти первый '>' после '<svg'
+    svg_start = svg_content.find("<svg")
+    if svg_start == -1:
+        logger.error("❌ Не найден открывающий тег <svg> в SVG контенте")
+        return svg_content
+
+    svg_tag_end = svg_content.find(">", svg_start)
+
+    if svg_tag_end == -1:
+        logger.error("❌ Не найден закрывающий '>' для тега <svg>")
+        return svg_content
+
+    # Вставляем style_block сразу после <svg ...>
+    injected_svg = (
+        svg_content[: svg_tag_end + 1]
+        + "\n"
+        + style_block
+        + "\n"
+        + svg_content[svg_tag_end + 1 :]
+    )
+
+    logger.info(f"✅ Google Font '{clean_name}' внедрён в SVG ({font_url})")
+
+    return injected_svg
 
 
 class PlantUMLSyntaxError(Exception):
@@ -411,6 +528,8 @@ def render_diagram_from_string(
         command = [
             "java",
             "-Dfile.encoding=UTF-8",
+            "-Dsun.jnu.encoding=UTF-8",
+            "-Dconsole.encoding=UTF-8",
             "-Dplantuml.include.path=" + str(THEMES_DIR.absolute()),
             "-Dplantuml.smetana=true",
             "-Dplantuml.graphviz.use=false",
@@ -423,11 +542,18 @@ def render_diagram_from_string(
         ]
 
         try:
+            # Установка environment для UTF-8
+            import os
+
+            env = os.environ.copy()
+            env["JAVA_TOOL_OPTIONS"] = "-Dfile.encoding=UTF-8"
+
             process = subprocess.Popen(
                 command,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                env=env,
             )
 
             stdout_data, stderr_data = process.communicate(
@@ -448,18 +574,52 @@ def render_diagram_from_string(
                     f"PlantUML вернул ошибку (код {process.returncode}):\n{error_message}"
                 )
 
-            # Создаём директорию если нужно
-            output_path.parent.mkdir(parents=True, exist_ok=True)
+            # Для SVG форма выполняем инъекцию Google Fonts
+            if format == "svg":
+                # Извлекаем имя шрифта из темы
+                font_name = _extract_font_from_theme(theme_name)
 
-            # Сохраняем напрямую
-            with open(output_path, "wb") as f:
-                f.write(stdout_data)
+                # Декодируем SVG из байтов с явным указанием UTF-8
+                # Пробуем разные кодировки на случай проблем PlantUML
+                try:
+                    svg_text = stdout_data.decode("utf-8")
+                except UnicodeDecodeError:
+                    logger.warning("⚠️ UTF-8 декодирование не удалось, пробуем cp1251")
+                    try:
+                        svg_text = stdout_data.decode("cp1251")
+                    except UnicodeDecodeError:
+                        logger.error("❌ Не удалось декодировать SVG")
+                        svg_text = stdout_data.decode("utf-8", errors="replace")
 
-            file_size = len(stdout_data)
-            logger.info(
-                f"✅ Диаграмма сохранена: {output_path.name}, "
-                f"размер: {file_size / 1024:.2f} KB"
-            )
+                # Внедряем ссылку на Google Fonts
+                svg_text = _inject_web_font_into_svg(svg_text, font_name)
+
+                # Создаём директорию если нужно
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+
+                # Сохраняем модифицированный SVG с явной UTF-8 кодировкой
+                with open(output_path, "w", encoding="utf-8") as f:
+                    f.write(svg_text)
+
+                file_size = len(svg_text.encode("utf-8"))
+                logger.info(
+                    f"✅ SVG диаграмма с Google Font сохранена: {output_path.name}, "
+                    f"размер: {file_size / 1024:.2f} KB"
+                )
+            else:
+                # Для EPS/PDF сохраняем напрямую без модификаций
+                # Создаём директорию если нужно
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+
+                # Сохраняем напрямую
+                with open(output_path, "wb") as f:
+                    f.write(stdout_data)
+
+                file_size = len(stdout_data)
+                logger.info(
+                    f"✅ Диаграмма сохранена: {output_path.name}, "
+                    f"размер: {file_size / 1024:.2f} KB"
+                )
 
             return {
                 "success": True,

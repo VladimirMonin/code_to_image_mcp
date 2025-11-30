@@ -202,7 +202,7 @@ class TestPlantUMLDiagramsWorkflow:
         ],
     )
     def test_render_diagram_svg(self, assets_dir, output_dir, diagram_name):
-        """Тест: рендеринг диаграмм в SVG формат."""
+        """Тест: рендеринг диаграмм в SVG формат с Google Fonts."""
         input_file = assets_dir / f"{diagram_name}.puml"
         output_file = output_dir / f"{diagram_name}.svg"
 
@@ -223,6 +223,11 @@ class TestPlantUMLDiagramsWorkflow:
         with open(output_file, "r", encoding="utf-8") as f:
             content = f.read()
             assert "<?xml" in content or "<svg" in content
+
+            # Проверяем наличие инъекции Google Fonts
+            assert "@import url(" in content
+            assert "fonts.googleapis.com" in content
+            assert "JetBrains+Mono" in content
 
     def test_png_to_webp_conversion(self, assets_dir, output_dir):
         """Тест: конвертация PNG диаграмм в WebP формат."""

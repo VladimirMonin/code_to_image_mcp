@@ -26,6 +26,14 @@ AVAILABLE_FONTS = {
     "Courier New": None,
 }
 
+# Google Fonts URLs для инъекции в SVG файлы
+# Это позволяет SVG корректно отображаться в браузерах без установки шрифтов
+GOOGLE_FONTS_URLS = {
+    "JetBrainsMono": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap",
+    "FiraCode": "https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap",
+    "CascadiaCode": "https://fonts.googleapis.com/css2?family=Cascadia+Code:wght@400;700&display=swap",
+}
+
 
 def get_font_path(font_name: str) -> str:
     """Возвращает путь к шрифту.
