@@ -177,6 +177,13 @@ def generate_file_screenshot(
 
     ⚠️ ВАЖНО: Файл ограничен 200 строками.
 
+    CRITICAL RULES FOR AI MODELS:
+    1. NEVER hardcode colors or use !theme/!include directives in diagram_code
+    2. ALWAYS use list_plantuml_themes BEFORE generating diagrams to discover available themes
+    3. ALWAYS use get_plantuml_guide for complex diagrams to understand proper syntax
+    4. Use ONLY stereotypes (<<Adapter>>, <<Core>>, <<Infrastructure>>) for styling
+    5. Let the theme handle ALL colors - your job is structure, not appearance
+
     Args:
         file_path: АБСОЛЮТНЫЙ путь к файлу с исходным кодом.
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
@@ -459,14 +466,24 @@ def generate_architecture_diagram(
 ) -> dict:
     """Генерирует UML диаграмму из PlantUML кода.
 
+    ⚠️ CRITICAL RULES (READ CAREFULLY):
+    1. DO NOT use '!theme' or '!include' directives inside 'diagram_code'.
+       The theme is applied automatically via the 'theme_name' argument.
+    2. DO NOT hardcode colors (e.g., #000000, #Red) unless absolutely necessary.
+       Rely on the applied theme for consistent styling.
+    3. ALWAYS verify available themes using 'list_plantuml_themes' before generation.
+       Do not hallucinate theme names like 'darkblue' or 'ocean'.
+    4. For complex diagrams, ALWAYS verify syntax using 'get_plantuml_guide'.
+    5. Use stereotypes (<<Adapter>>, <<Core>>, <<Infrastructure>>) for automatic coloring.
+
     ⚠️ ВАЖНО: Требуется Java (JRE 8+).
 
     Args:
-        diagram_code: PlantUML код диаграммы.
+        diagram_code: Pure PlantUML code without theme imports or color overrides.
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
         detail_level: Уровень детализации ('Low', 'Medium', 'High', 'Ultra', 'Extreme').
         image_format: Формат изображения ('png', 'svg', 'eps', 'pdf', 'webp').
-        theme_name: Имя темы оформления (default или None).
+        theme_name: Имя темы оформления из списка list_plantuml_themes (например: 'dark_gold').
 
     Returns:
         Словарь с информацией о созданной диаграмме.

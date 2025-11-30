@@ -89,6 +89,19 @@ skinparam activity {
     BarColor #007ACC
 }
 
+' Кружки начала/завершения (start/stop/end)
+skinparam activityStart {
+    Color #4EC9B0
+}
+
+skinparam activityEnd {
+    Color #F48771
+}
+
+' CRITICAL: явное переопределение цвета stop элементов
+skinparam ActivityEndColor #F48771
+skinparam ActivityStopColor #F48771
+
 ' ============================================================================
 ' State Diagrams
 ' ============================================================================
@@ -164,5 +177,135 @@ skinparam stereotypeCBackgroundColor #007ACC
 skinparam stereotypeABackgroundColor #4EC9B0
 skinparam stereotypeIBackgroundColor #C586C0
 skinparam stereotypeEBackgroundColor #DCDCAA
+
+' ============================================================================
+' UNIVERSAL ELEMENT OVERRIDES (исправление чёрных обводок на тёмном фоне)
+' ============================================================================
+' Эти элементы игнорируют глобальные настройки и требуют явного переопределения
+
+' Title (заголовок диаграммы)
+skinparam titleFontColor #D4D4D4
+skinparam titleFontSize 18
+skinparam titleBorderColor #007ACC
+skinparam titleBorderThickness 2
+skinparam titleBackgroundColor #252526
+
+' Legend (легенда)
+skinparam legendFontColor #D4D4D4
+skinparam legendBackgroundColor #2D2D30
+skinparam legendBorderColor #569CD6
+skinparam legendBorderThickness 2
+
+' Database (база данных в sequence/component)
+skinparam database {
+    BackgroundColor #2D2D30
+    BorderColor #569CD6
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Collections (коллекции в sequence)
+skinparam collections {
+    BackgroundColor #2D2D30
+    BorderColor #4EC9B0
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Queue (очередь в sequence/component)
+skinparam queue {
+    BackgroundColor #2D2D30
+    BorderColor #C586C0
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Entity (сущность в sequence)
+skinparam entity {
+    BackgroundColor #2D2D30
+    BorderColor #DCDCAA
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Boundary (граница системы в sequence)
+skinparam boundary {
+    BackgroundColor #2D2D30
+    BorderColor #569CD6
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Control (контроллер в sequence)
+skinparam control {
+    BackgroundColor #2D2D30
+    BorderColor #007ACC
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Partition (раздел в activity диаграммах)
+skinparam partition {
+    BackgroundColor #252526
+    BorderColor #569CD6
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Node (узел в deployment)
+skinparam node {
+    BackgroundColor #2D2D30
+    BorderColor #569CD6
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Cloud (облако в deployment)
+skinparam cloud {
+    BackgroundColor #2D2D30
+    BorderColor #4EC9B0
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Frame (фрейм в sequence)
+skinparam frame {
+    BackgroundColor #252526
+    BorderColor #007ACC
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Folder (папка в component)
+skinparam folder {
+    BackgroundColor #2D2D30
+    BorderColor #DCDCAA
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Artifact (артефакт в deployment)
+skinparam artifact {
+    BackgroundColor #2D2D30
+    BorderColor #C586C0
+    BorderThickness 2
+    FontColor #D4D4D4
+}
+
+' Swimlane (дорожка в activity)
+skinparam swimlane {
+    BorderColor #569CD6
+    BorderThickness 2
+    TitleFontColor #D4D4D4
+}
+
+' State (состояние в state диаграммах)
+' Уже настроено выше, но дублируем для полноты
+skinparam state {
+    BackgroundColor #2D2D30
+    BorderColor #569CD6
+    BorderThickness 2
+    FontColor #D4D4D4
+}
 
 @enduml

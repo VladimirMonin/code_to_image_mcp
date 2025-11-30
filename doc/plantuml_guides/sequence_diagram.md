@@ -2,6 +2,7 @@
 
 <!-- BRIEF_START -->
 **Синтаксис участников:**
+
 ```plantuml
 participant "Имя" as alias
 actor "Актор" as actorAlias
@@ -9,12 +10,14 @@ database "БД" as db
 ```
 
 **Синтаксис сообщений:**
+
 * `A -> B: Сообщение` — синхронный запрос
 * `A --> B: Ответ` — пунктирный ответ
 * `A ->> B: Async` — асинхронный запрос
 * `A -x B: Отмена` — отмена/ошибка
 
 **Активация (lifeline bars):**
+
 ```plantuml
 activate A
 A -> B: Запрос
@@ -22,6 +25,7 @@ deactivate A
 ```
 
 **Группировка:**
+
 ```plantuml
 alt условие
     A -> B: если true
@@ -35,6 +39,7 @@ end
 ## Примеры использования
 
 ### Простая последовательность
+
 ```plantuml
 @startuml
 Alice -> Bob: Привет!
@@ -44,6 +49,7 @@ Alice -> Bob: Отлично, спасибо!
 ```
 
 ### Участники с типами
+
 ```plantuml
 @startuml
 actor "Пользователь" as User
@@ -67,6 +73,7 @@ deactivate API
 ```
 
 ### Условия и циклы
+
 ```plantuml
 @startuml
 participant Client
@@ -88,6 +95,7 @@ end
 ```
 
 ### Заметки
+
 ```plantuml
 @startuml
 Alice -> Bob: Сообщение
@@ -100,16 +108,16 @@ note over Alice, Bob: Заметка над обоими
 ## Частые ошибки
 
 1. **Забыли deactivate:**
-   - Если используете `activate`, не забудьте `deactivate`
-   - Иначе бар активации уходит до конца диаграммы
+   * Если используете `activate`, не забудьте `deactivate`
+   * Иначе бар активации уходит до конца диаграммы
 
 2. **Неправильный порядок стрелок:**
-   - `->` сплошная стрелка (запрос)
-   - `-->` пунктирная стрелка (ответ)
+   * `->` сплошная стрелка (запрос)
+   * `-->` пунктирная стрелка (ответ)
 
 3. **Кириллица без кавычек:**
-   - ❌ `participant Пользователь`
-   - ✅ `participant "Пользователь" as User`
+   * ❌ `participant Пользователь`
+   * ✅ `participant "Пользователь" as User`
 
 ## Типы участников
 
@@ -123,4 +131,34 @@ note over Alice, Bob: Заметка над обоими
 | `control` | Контроллер |
 | `collections` | Коллекция |
 | `queue` | Очередь |
+
+## Styling & Themes
+
+⚠️ **КРИТИЧЕСКИ ВАЖНО ДЛЯ AI МОДЕЛЕЙ:**
+
+**ЗАПРЕЩЕНО:**
+* ❌ Использовать `!theme` или `!include` директивы
+* ❌ Жёстко прописывать цвета (например: `skinparam sequenceMessageAlign center`)
+* ❌ Переопределять стили через `skinparam` в diagram_code
+
+**ПРАВИЛЬНЫЙ ПОДХОД:**
+* ✅ ВСЕГДА вызывайте `list_plantuml_themes` перед генерацией диаграммы
+* ✅ Передавайте выбранную тему через параметр `theme_name`
+* ✅ Доверьте цвета и стили теме — ваша задача структура взаимодействий
+* ✅ Используйте типизированных участников (`actor`, `database`, `participant`) для автоматической стилизации
+
+**Пример правильного использования:**
+
+```plantuml
+@startuml
+actor User
+participant "API Gateway" as API
+database "PostgreSQL" as DB
+
+User -> API: POST /login
+API -> DB: SELECT user
+DB --> API: user data
+API --> User: JWT token
+@enduml
+```
 <!-- DETAILED_END -->

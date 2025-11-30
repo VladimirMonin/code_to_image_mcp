@@ -131,3 +131,109 @@ skinparam activityEnd {
 skinparam activityBar {
     Color ACCENT_GOLD
 }
+
+' === UNIVERSAL ELEMENT OVERRIDES (FIX FOR DARK THEMES) ===
+
+' 1. Глобальные текстовые элементы
+skinparam titleFontColor LIGHT_TEXT
+skinparam titleFontSize 20
+skinparam titleFontStyle bold
+skinparam headerFontColor LIGHT_TEXT
+skinparam footerFontColor LIGHT_TEXT
+skinparam captionFontColor LIGHT_TEXT
+skinparam legendFontColor LIGHT_TEXT
+skinparam legendBackgroundColor DARK_BG
+skinparam legendBorderColor BORDER_COLOR
+
+' 2. Элементы Sequence и Component (Специфичные сущности)
+skinparam database {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam collections {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam queue {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam entity {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam actor {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam boundary {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam control {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+
+' 3. Заметки (Notes) - критично для читаемости
+skinparam note {
+    BackgroundColor #333333
+    BorderColor ACCENT_GOLD
+    FontColor LIGHT_TEXT
+}
+
+' 4. Группировки (Packages, Nodes, Clouds, Frames)
+skinparam node {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam cloud {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam frame {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam folder {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam artifact {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+
+' 5. Activity диаграммы (Partitions - частая боль)
+skinparam partition {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+skinparam swimlane {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+
+' 6. State диаграммы
+skinparam state {
+    BackgroundColor #333333
+    BorderColor ACCENT_GOLD
+    FontColor LIGHT_TEXT
+    StartColor ACCENT_GOLD
+    EndColor ACCENT_GOLD
+}
+

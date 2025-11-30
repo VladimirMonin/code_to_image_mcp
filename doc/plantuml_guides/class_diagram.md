@@ -2,6 +2,7 @@
 
 <!-- BRIEF_START -->
 **Синтаксис:**
+
 ```plantuml
 class "ClassName" <<Stereotype>> {
     + publicField: Type
@@ -13,11 +14,13 @@ class "ClassName" <<Stereotype>> {
 ```
 
 **Доступные стереотипы (рекомендуется использовать):**
+
 * `<<Adapter>>` — Входные точки: API, UI, Controllers, Views. Цвет: Зелёный/Белый.
 * `<<Core>>` — Бизнес-логика: Services, UseCases, Domain. Цвет: Жёлтый/Золотой.
 * `<<Infrastructure>>` — Инфраструктура: БД, Кеш, Внешние API, Repositories. Цвет: Синий/Серый.
 
 **Отношения:**
+
 * `A --|> B` — наследование (A extends B)
 * `A ..|> B` — реализация интерфейса (A implements B)
 * `A --> B` — ассоциация/зависимость
@@ -29,6 +32,7 @@ class "ClassName" <<Stereotype>> {
 ## Примеры использования
 
 ### Простой класс
+
 ```plantuml
 @startuml
 class User {
@@ -42,6 +46,7 @@ class User {
 ```
 
 ### Класс со стереотипом
+
 ```plantuml
 @startuml
 class "UserService" <<Core>> {
@@ -67,6 +72,7 @@ UserService --> UserRepository
 ```
 
 ### Интерфейсы и наследование
+
 ```plantuml
 @startuml
 interface IRepository<T> {
@@ -88,16 +94,16 @@ UserRepository ..|> IRepository
 ## Частые ошибки
 
 1. **Забытые кавычки в именах с пробелами:**
-   - ❌ `class User Service`
-   - ✅ `class "User Service"`
+   * ❌ `class User Service`
+   * ✅ `class "User Service"`
 
 2. **Неправильный синтаксис стереотипа:**
-   - ❌ `class UserService <Core>`
-   - ✅ `class "UserService" <<Core>>`
+   * ❌ `class UserService <Core>`
+   * ✅ `class "UserService" <<Core>>`
 
 3. **Забытые модификаторы доступа:**
-   - ❌ `name: String`
-   - ✅ `+ name: String` (public)
+   * ❌ `name: String`
+   * ✅ `+ name: String` (public)
 
 ## Модификаторы доступа
 
@@ -107,4 +113,40 @@ UserRepository ..|> IRepository
 | `-` | private |
 | `#` | protected |
 | `~` | package |
+
+## Styling & Themes
+
+⚠️ **КРИТИЧЕСКИ ВАЖНО ДЛЯ AI МОДЕЛЕЙ:**
+
+**ЗАПРЕЩЕНО:**
+* ❌ Использовать `!theme` или `!include` директивы
+* ❌ Жёстко прописывать цвета (например: `#backgroundColor yellow`)
+* ❌ Переопределять стили через `skinparam` в diagram_code
+
+**ПРАВИЛЬНЫЙ ПОДХОД:**
+* ✅ Используйте ТОЛЬКО стереотипы: `<<Adapter>>`, `<<Core>>`, `<<Infrastructure>>`
+* ✅ ВСЕГДА вызывайте `list_plantuml_themes` перед генерацией диаграммы
+* ✅ Передавайте выбранную тему через параметр `theme_name`
+* ✅ Доверьте цвета и стили теме — ваша задача структура классов и их отношения
+
+**Пример правильного использования:**
+
+```plantuml
+@startuml
+class "UserController" <<Adapter>> {
+    + createUser(dto: CreateUserDTO): Response
+}
+
+class "UserService" <<Core>> {
+    + registerUser(dto: CreateUserDTO): User
+}
+
+class "UserRepository" <<Infrastructure>> {
+    + save(user: User): void
+}
+
+UserController --> UserService
+UserService --> UserRepository
+@enduml
+```
 <!-- DETAILED_END -->

@@ -2,22 +2,26 @@
 
 <!-- BRIEF_START -->
 **Синтаксис:**
+
 ```plantuml
 component "Name" <<Stereotype>>
 [ShortName] <<Stereotype>>
 ```
 
 **Доступные стереотипы (ОБЯЗАТЕЛЬНО использовать для архитектурных диаграмм):**
+
 * `<<Adapter>>` — Входные точки: API, UI, Views, Controllers. Цвет: Зелёный/Белый.
 * `<<Core>>` — Бизнес-логика: Services, UseCases, Domain. Цвет: Жёлтый/Золотой.
 * `<<Infrastructure>>` — Инфраструктура: БД, Кеш, Внешние API. Цвет: Синий/Серый.
 
 **Связи:**
+
 * `A --> B` — зависимость
 * `A ..> B` — пунктирная зависимость
 * `A --( B` — интерфейс
 
 **Группировка:**
+
 ```plantuml
 package "Layer Name" {
     component "A"
@@ -30,6 +34,7 @@ package "Layer Name" {
 ## Примеры использования
 
 ### Трёхслойная архитектура
+
 ```plantuml
 @startuml
 package "Presentation Layer" {
@@ -60,6 +65,7 @@ package "Data Layer" {
 ```
 
 ### Hexagonal Architecture
+
 ```plantuml
 @startuml
 package "Adapters (Input)" {
@@ -91,6 +97,7 @@ package "Adapters (Output)" {
 ```
 
 ### Интерфейсы
+
 ```plantuml
 @startuml
 interface "IUserRepository" as IUR
@@ -110,37 +117,65 @@ RC ..|> ICS
 ## Частые ошибки
 
 1. **Забыли стереотип:**
-   - ❌ `component "Service"` — не понятна роль
-   - ✅ `component "Service" <<Core>>` — бизнес-логика
+   * ❌ `component "Service"` — не понятна роль
+   * ✅ `component "Service" <<Core>>` — бизнес-логика
 
 2. **Неправильный синтаксис стереотипа:**
-   - ❌ `component "API" <Adapter>`
-   - ✅ `component "API" <<Adapter>>`
+   * ❌ `component "API" <Adapter>`
+   * ✅ `component "API" <<Adapter>>`
 
 3. **Смешивание слоёв:**
-   - Adapter не должен напрямую обращаться к Infrastructure
-   - Только через Core!
+   * Adapter не должен напрямую обращаться к Infrastructure
+   * Только через Core!
 
 ## Рекомендации по слоям
 
 ### Adapter Layer (Зелёный/Белый)
+
 - REST Controllers
-- GraphQL Resolvers
-- CLI Commands
-- Web Views
-- Message Consumers
+* GraphQL Resolvers
+* CLI Commands
+* Web Views
+* Message Consumers
 
 ### Core Layer (Жёлтый/Золотой)
+
 - Domain Services
-- Use Cases
-- Domain Entities
-- Business Rules
-- Domain Events
+* Use Cases
+* Domain Entities
+* Business Rules
+* Domain Events
 
 ### Infrastructure Layer (Синий/Серый)
+
 - Database Repositories
-- Cache Clients
-- External API Clients
-- Message Producers
-- File Storage
+* Cache Clients
+* External API Clients
+* Message Producers
+* File Storage
+
+## Styling & Themes
+
+⚠️ **КРИТИЧЕСКИ ВАЖНО ДЛЯ AI МОДЕЛЕЙ:**
+
+**ЗАПРЕЩЕНО:**
+* ❌ Использовать `!theme` или `!include` директивы
+* ❌ Жёстко прописывать цвета (например: `#backgroundColor red`)
+* ❌ Переопределять стили через `skinparam` в diagram_code
+
+**ПРАВИЛЬНЫЙ ПОДХОД:**
+* ✅ Используйте ТОЛЬКО стереотипы: `<<Adapter>>`, `<<Core>>`, `<<Infrastructure>>`
+* ✅ ВСЕГДА вызывайте `list_plantuml_themes` перед генерацией диаграммы
+* ✅ Передавайте выбранную тему через параметр `theme_name`
+* ✅ Доверьте цвета и стили теме — ваша задача структура, а не внешний вид
+
+**Пример правильного использования:**
+
+```plantuml
+@startuml
+component "API Gateway" <<Adapter>>
+component "User Service" <<Core>>
+component "PostgreSQL" <<Infrastructure>>
+@enduml
+```
 <!-- DETAILED_END -->

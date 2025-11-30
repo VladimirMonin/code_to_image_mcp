@@ -71,3 +71,184 @@ skinparam package {
     BorderColor #294f3d
     FontColor #0b2e1d
 }
+
+' ============================================================================
+' UNIVERSAL ELEMENT OVERRIDES
+' ============================================================================
+' Специфичные элементы PlantUML требуют явного переопределения
+
+' Title
+skinparam titleFontColor #0b2e1d
+skinparam titleFontSize 18
+skinparam titleBorderColor #294f3d
+skinparam titleBorderThickness 2
+skinparam titleBackgroundColor #e8f5e9
+
+' Legend
+skinparam legendFontColor #0b2e1d
+skinparam legendBackgroundColor #F0FFF0
+skinparam legendBorderColor #294f3d
+skinparam legendBorderThickness 2
+
+' Database
+skinparam database {
+    BackgroundColor #F0FFF0
+    BorderColor #294f3d
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Collections
+skinparam collections {
+    BackgroundColor #F0FFF0
+    BorderColor #4dd191
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Queue
+skinparam queue {
+    BackgroundColor #FFFFF5
+    BorderColor #e3c764
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Entity
+skinparam entity {
+    BackgroundColor #F0FFF0
+    BorderColor #294f3d
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Boundary
+skinparam boundary {
+    BackgroundColor #F0FFF0
+    BorderColor #4dd191
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Control
+skinparam control {
+    BackgroundColor #F0FFF0
+    BorderColor #294f3d
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Note
+skinparam note {
+    BackgroundColor #e8f5e9
+    BorderColor #4dd191
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Partition
+skinparam partition {
+    BackgroundColor #e8f5e9
+    BorderColor #294f3d
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Node
+skinparam node {
+    BackgroundColor #F0FFF0
+    BorderColor #294f3d
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Cloud
+skinparam cloud {
+    BackgroundColor #F0FFF0
+    BorderColor #4dd191
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Frame
+skinparam frame {
+    BackgroundColor #e8f5e9
+    BorderColor #294f3d
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Folder
+skinparam folder {
+    BackgroundColor #F0FFF0
+    BorderColor #e3c764
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Artifact
+skinparam artifact {
+    BackgroundColor #F0FFF0
+    BorderColor #b5beeb
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Swimlane
+skinparam swimlane {
+    BorderColor #294f3d
+    BorderThickness 2
+    TitleFontColor #0b2e1d
+}
+
+' Activity
+skinparam activity {
+    BackgroundColor #F0FFF0
+    BorderColor #4dd191
+    BorderThickness 2
+    FontColor #0b2e1d
+    DiamondBackgroundColor #FFFFF5
+    DiamondBorderColor #e3c764
+    DiamondFontColor #0b2e1d
+    StartColor #4dd191
+    EndColor #f48771
+    BarColor #294f3d
+}
+
+' Кружки начала/завершения
+skinparam activityStart {
+    Color #4dd191
+}
+
+skinparam activityEnd {
+    Color #f48771
+}
+
+' CRITICAL: stop элементы
+skinparam ActivityEndColor #f48771
+skinparam ActivityStopColor #f48771
+
+' Actor (для sequence диаграмм)
+skinparam actor {
+    BackgroundColor #F0FFF0
+    BorderColor #4dd191
+    BorderThickness 2
+    FontColor #0b2e1d
+}
+
+' Class (базовые настройки для классов без стереотипов)
+skinparam class {
+    BackgroundColor #F0FFF0
+    BorderColor #294f3d
+    BorderThickness 2
+    FontColor #0b2e1d
+    ArrowColor #294f3d
+}
+
+' Component (базовые настройки для компонентов без стереотипов)
+skinparam component {
+    BackgroundColor #F0FFF0
+    BorderColor #294f3d
+    BorderThickness 2
+    FontColor #0b2e1d
+}
