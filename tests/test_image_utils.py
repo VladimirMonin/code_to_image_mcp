@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from image_utils import (
+from src.image_utils import (
     ImageProcessingError,
     convert_to_webp,
     load_image_from_bytes,

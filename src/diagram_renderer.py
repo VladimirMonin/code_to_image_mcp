@@ -29,13 +29,13 @@ from typing import Literal
 
 from PIL import Image
 
-from font_initializer import ensure_fonts_initialized
-from image_utils import save_image, load_image_from_bytes
+from src.font_initializer import ensure_fonts_initialized
+from src.image_utils import save_image, load_image_from_bytes
 
 logger = logging.getLogger(__name__)
 
 # Константы путей
-ASSET_DIR = Path(__file__).parent / "asset"
+ASSET_DIR = Path(__file__).parent.parent / "asset"
 PLANTUML_JAR = ASSET_DIR / "bins" / "plantuml.jar"
 THEMES_DIR = ASSET_DIR / "themes"
 

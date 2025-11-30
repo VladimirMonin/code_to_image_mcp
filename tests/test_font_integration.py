@@ -8,8 +8,8 @@ import platform
 # Добавляем корень проекта в путь для импорта
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from diagram_renderer import render_diagram_from_string
-from font_manager import load_custom_fonts, FONTS_DIR
+from src.diagram_renderer import render_diagram_from_string
+from src.font_manager import load_custom_fonts, FONTS_DIR
 
 
 class TestFontLoading:

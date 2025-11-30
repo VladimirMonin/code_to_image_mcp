@@ -7,7 +7,7 @@ import sys
 # Добавляем корень проекта в путь для импорта
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from diagram_renderer import (
+from src.diagram_renderer import (
     render_diagram_from_string,
     render_diagram_to_image,
     ensure_java_environment,
@@ -16,7 +16,7 @@ from diagram_renderer import (
     PlantUMLSyntaxError,
 )
 from PIL import Image
-from image_utils import save_image, convert_to_webp
+from src.image_utils import save_image, convert_to_webp
 
 
 class TestJavaEnvironment:

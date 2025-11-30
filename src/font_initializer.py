@@ -24,8 +24,8 @@ import json
 logger = logging.getLogger(__name__)
 
 # Константы
-FONTS_DIR = Path(__file__).parent / "asset" / "fonts"
-MARKER_FILE = Path(__file__).parent / ".fonts_installed.json"
+FONTS_DIR = Path(__file__).parent.parent / "asset" / "fonts"
+MARKER_FILE = Path(__file__).parent.parent / ".fonts_installed.json"
 
 
 class JavaNotFoundError(Exception):

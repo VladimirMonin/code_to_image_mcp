@@ -14,8 +14,8 @@ logging.basicConfig(
 # Добавляем корень проекта
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from font_initializer import ensure_fonts_initialized
-from diagram_renderer import render_diagram_from_string
+from src.font_initializer import ensure_fonts_initialized
+from src.diagram_renderer import render_diagram_from_string
 
 
 def main():

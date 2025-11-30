@@ -22,8 +22,8 @@ from pygments.formatters import ImageFormatter
 from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name
 
-from font_manager import get_font_path
-from image_utils import save_image
+from src.font_manager import get_font_path
+from src.image_utils import save_image
 
 logger = logging.getLogger(__name__)
 

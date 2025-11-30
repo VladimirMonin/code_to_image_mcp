@@ -2,6 +2,31 @@
 
 MCP сервер для создания высококачественных скриншотов кода с использованием Pygments и Pillow.
 
+## 📁 Структура проекта
+
+```
+code_to_image_mcp/
+├── server.py              # MCP сервер (точка входа)
+├── src/                   # Пакет с бизнес-логикой
+│   ├── __init__.py
+│   ├── code_to_image.py   # Генерация скриншотов кода
+│   ├── diagram_renderer.py # Рендеринг PlantUML диаграмм
+│   ├── font_manager.py    # Управление шрифтами
+│   ├── font_initializer.py # Инициализация шрифтов для PlantUML
+│   ├── image_utils.py     # Утилиты для работы с изображениями
+│   └── guide_manager.py   # Управление гайдами по PlantUML
+├── tests/                 # Тесты и демонстрационные скрипты
+│   ├── test_*.py         # Unit-тесты
+│   └── demo_all_diagrams.py # Демо всех типов диаграмм
+├── asset/                 # Ресурсы
+│   ├── bins/             # PlantUML JAR
+│   ├── fonts/            # TTF шрифты
+│   └── themes/           # PlantUML темы
+└── doc/                   # Документация
+    ├── plantuml_guides/  # Гайды по PlantUML
+    └── ideas/            # Идеи и планы
+```
+
 ## ✨ Особенности
 
 - 🎨 **Множество стилей** - monokai, dracula, github-dark, vim и другие

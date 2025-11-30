@@ -20,8 +20,8 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 # Константы путей
-GUIDES_DIR = Path(__file__).parent / "doc" / "plantuml_guides"
-THEMES_DIR = Path(__file__).parent / "asset" / "themes"
+GUIDES_DIR = Path(__file__).parent.parent / "doc" / "plantuml_guides"
+THEMES_DIR = Path(__file__).parent.parent / "asset" / "themes"
 INDEX_FILE = GUIDES_DIR / "index.json"
 
 # Маркеры для парсинга brief/detailed секций
@@ -137,7 +137,9 @@ def get_guide(guide_type: str, full: bool = False) -> str:
     if full:
         brief = _extract_brief(content)
         detailed = _extract_detailed(content)
-        logger.debug(f"📖 Возвращаем полный гайд: {len(brief) + len(detailed)} символов")
+        logger.debug(
+            f"📖 Возвращаем полный гайд: {len(brief) + len(detailed)} символов"
+        )
         return f"{brief}\n\n{detailed}"
     else:
         brief = _extract_brief(content)

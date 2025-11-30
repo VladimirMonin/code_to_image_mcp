@@ -7,7 +7,7 @@ import json
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from font_initializer import ensure_fonts_initialized, MARKER_FILE
+from src.font_initializer import ensure_fonts_initialized, MARKER_FILE
 
 
 class TestFontInitializer:

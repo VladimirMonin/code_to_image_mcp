@@ -16,7 +16,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-FONTS_DIR = Path(__file__).parent / "asset" / "fonts"
+FONTS_DIR = Path(__file__).parent.parent / "asset" / "fonts"
 
 AVAILABLE_FONTS = {
     "JetBrainsMono": "JetBrainsMono-Regular.ttf",

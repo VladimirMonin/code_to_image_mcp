@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from guide_manager import (
+from src.guide_manager import (
     get_guide,
     list_guides,
     list_themes,
@@ -128,7 +128,7 @@ class TestGetGuide:
 
 class TestExtractBrief:
     """Тесты для парсинга brief-секций.
-    
+
     Примечание: Тестируем внутреннюю функцию _extract_brief напрямую
     для проверки граничных случаев парсинга маркеров.
     """
@@ -156,7 +156,7 @@ Some footer
 
 class TestExtractDetailed:
     """Тесты для парсинга detailed-секций.
-    
+
     Примечание: Тестируем внутреннюю функцию _extract_detailed напрямую
     для проверки граничных случаев парсинга маркеров.
     """

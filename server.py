@@ -25,16 +25,16 @@ import os
 
 from mcp.server.fastmcp import FastMCP
 
-from code_to_image import create_code_screenshot
-from diagram_renderer import (
+from src.code_to_image import create_code_screenshot
+from src.diagram_renderer import (
     JavaNotFoundError,
     PlantUMLRenderError,
     PlantUMLSyntaxError,
     ensure_java_environment,
     render_diagram_from_string,
 )
-from font_manager import list_available_fonts
-from guide_manager import get_guide, list_guides, list_themes
+from src.font_manager import list_available_fonts
+from src.guide_manager import get_guide, list_guides, list_themes
 
 logger = logging.getLogger(__name__)
 

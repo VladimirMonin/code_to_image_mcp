@@ -1,6 +1,6 @@
 """Демонстрация всех типов диаграмм в обеих темах."""
 
-from diagram_renderer import render_diagram_from_string
+from src.diagram_renderer import render_diagram_from_string
 
 # 1. ДИАГРАММА КОМПОНЕНТОВ (Component Diagram)
 component_diagram = """

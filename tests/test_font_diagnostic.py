@@ -6,7 +6,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from diagram_renderer import render_diagram_from_string
+from src.diagram_renderer import render_diagram_from_string
 
 
 class TestFontDiagnostic:
