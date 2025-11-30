@@ -106,12 +106,12 @@ def generate_code_screenshot(
     code: str,
     language: str,
     output_path: str,
+    detail_level: str = "High",
+    image_format: str = "webp",
     style: str = "monokai",
     font_size: int = 18,
-    scale_factor: int = 3,
     line_numbers: bool = True,
     font_name: str = "JetBrainsMono",
-    format: str = "WEBP",
 ) -> dict:
     """Создаёт скриншот кода из строки.
 
@@ -119,16 +119,19 @@ def generate_code_screenshot(
         code: Исходный код для генерации изображения.
         language: Язык программирования (python, typescript, javascript, sql).
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
+        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        image_format: Формат изображения ('webp', 'png', 'jpeg').
         style: Стиль подсветки (monokai, dracula, github-dark, vim).
-        font_size: Базовый размер шрифта (умножается на scale_factor).
-        scale_factor: Фактор масштабирования (3-5 рекомендуется).
+        font_size: Базовый размер шрифта (умножается на detail_level).
         line_numbers: Показывать нумерацию строк.
         font_name: Имя шрифта (JetBrainsMono, FiraCode, CascadiaCode, Consolas).
-        format: Формат изображения (WEBP, PNG, JPEG).
 
     Returns:
         Словарь с информацией о созданном изображении.
     """
+    # Конвертируем detail_level в scale_factor
+    scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+
     return _generate_screenshot_from_code(
         code=code,
         language=language,
@@ -138,7 +141,7 @@ def generate_code_screenshot(
         scale_factor=scale_factor,
         line_numbers=line_numbers,
         font_name=font_name,
-        format=format,
+        format=image_format,
     )
 
 
@@ -147,12 +150,12 @@ def generate_file_screenshot(
     file_path: str,
     output_path: str,
     language: str | None = None,
+    detail_level: str = "High",
+    image_format: str = "webp",
     style: str = "monokai",
     font_size: int = 18,
-    scale_factor: int = 3,
     line_numbers: bool = True,
     font_name: str = "JetBrainsMono",
-    format: str = "WEBP",
 ) -> dict:
     """Создаёт скриншот кода из файла.
 
@@ -162,12 +165,12 @@ def generate_file_screenshot(
         file_path: АБСОЛЮТНЫЙ путь к файлу с исходным кодом.
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
         language: Язык программирования (если None - определяется по расширению).
+        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        image_format: Формат изображения ('webp', 'png', 'jpeg').
         style: Стиль подсветки (monokai, dracula, github-dark, vim).
-        font_size: Базовый размер шрифта (умножается на scale_factor).
-        scale_factor: Фактор масштабирования (3-5 рекомендуется).
+        font_size: Базовый размер шрифта (умножается на detail_level).
         line_numbers: Показывать нумерацию строк.
         font_name: Имя шрифта (JetBrainsMono, FiraCode, CascadiaCode, Consolas).
-        format: Формат изображения (WEBP, PNG, JPEG).
 
     Returns:
         Словарь с информацией о созданном изображении.
@@ -252,6 +255,9 @@ def generate_file_screenshot(
             language = ext_to_lang.get(ext.lower(), "text")
             logger.debug(f"🔍 Определён язык по расширению: {language}")
 
+        # Конвертируем detail_level в scale_factor
+        scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+
         result = _generate_screenshot_from_code(
             code=code,
             language=language,
@@ -261,7 +267,7 @@ def generate_file_screenshot(
             scale_factor=scale_factor,
             line_numbers=line_numbers,
             font_name=font_name,
-            format=format,
+            format=image_format,
         )
 
         if result.get("success"):
@@ -291,7 +297,8 @@ def generate_file_screenshot(
 def generate_architecture_diagram(
     diagram_code: str,
     output_path: str,
-    format: str = "png",
+    detail_level: str = "High",
+    image_format: str = "png",
     theme_name: str = "default",
 ) -> dict:
     """Генерирует UML диаграмму из PlantUML кода.
@@ -301,7 +308,8 @@ def generate_architecture_diagram(
     Args:
         diagram_code: PlantUML код диаграммы.
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
-        format: Формат изображения (png, svg, eps, pdf).
+        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        image_format: Формат изображения ('png', 'svg', 'eps', 'pdf').
         theme_name: Имя темы оформления (default или None).
 
     Returns:
@@ -334,11 +342,15 @@ def generate_architecture_diagram(
                 },
             }
 
+        # Конвертируем detail_level в scale_factor
+        scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+
         result = render_diagram_from_string(
             diagram_code=diagram_code,
             output_path=output_path,
-            format=format,
+            format=image_format,
             theme_name=theme_name,
+            scale_factor=scale_factor,
         )
 
         logger.info(f"📤 Отправлен результат: success={result.get('success')}")

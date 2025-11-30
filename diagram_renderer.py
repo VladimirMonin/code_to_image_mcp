@@ -7,16 +7,18 @@
 Функции:
     ensure_java_environment() -> str
         Проверяет наличие Java в системе.
-    render_diagram_from_string(diagram_code, output_path, format, theme_name) -> dict
-        Генерирует диаграмму из PlantUML кода.
+    render_diagram_to_image(diagram_code, format, theme_name, scale_factor) -> Image
+        Генерирует диаграмму из PlantUML кода и возвращает PIL Image.
+    render_diagram_from_string(diagram_code, output_path, format, theme_name, scale_factor) -> dict
+        Генерирует диаграмму и сохраняет в файл (legacy, использует image_utils).
 
 Классы:
     JavaNotFoundError
         Исключение при отсутствии Java.
     PlantUMLRenderError
-        Исключение при ошибке рендеринга.
+        Ошибка рендеринга PlantUML диаграммы.
     PlantUMLSyntaxError
-        Исключение при синтаксической ошибке PlantUML.
+        Синтаксическая ошибка в PlantUML коде.
 """
 
 import logging
@@ -25,7 +27,10 @@ import sys
 from pathlib import Path
 from typing import Literal
 
+from PIL import Image
+
 from font_initializer import ensure_fonts_initialized
+from image_utils import save_image, load_image_from_bytes
 
 logger = logging.getLogger(__name__)
 
@@ -133,31 +138,28 @@ def _prepare_diagram_code(diagram_code: str, theme_path: Path | None = None) -> 
         return result
 
 
-def render_diagram_from_string(
+def render_diagram_to_image(
     diagram_code: str,
-    output_path: str | Path,
     format: DiagramFormat = "png",
     theme_name: str | None = "default",
-) -> dict:
-    """Генерирует диаграмму из PlantUML кода.
-
-    Использует subprocess.Popen для передачи кода через stdin,
-    что позволяет избежать создания временных файлов.
+    scale_factor: float = 1.0,
+) -> Image.Image:
+    """Генерирует диаграмму из PlantUML кода и возвращает PIL Image объект.
 
     Args:
         diagram_code: Исходный код PlantUML диаграммы.
-        output_path: Абсолютный путь к выходному файлу.
-        format: Формат выходного файла (png, svg, eps, pdf).
+        format: Формат рендеринга (png, svg, eps, pdf).
         theme_name: Имя темы из папки asset/themes или None.
+        scale_factor: Коэффициент масштабирования для увеличения разрешения.
+                     1.0 = 96 DPI (стандарт), 2.0 = 192 DPI, 3.0 = 288 DPI.
 
     Returns:
-        Словарь с информацией о результате рендеринга.
+        PIL Image объект.
 
     Raises:
         JavaNotFoundError: Если Java не найдена.
         PlantUMLSyntaxError: Если PlantUML код содержит синтаксические ошибки.
         PlantUMLRenderError: Если произошла ошибка рендеринга.
-        FileNotFoundError: Если PlantUML JAR или тема не найдены.
     """
     logger.info("📐 Начало рендеринга PlantUML диаграммы")
 
@@ -190,10 +192,7 @@ def render_diagram_from_string(
 
     logger.debug(f"📦 PlantUML JAR: {PLANTUML_JAR}")
 
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    logger.debug(f"🗂️ Директория вывода: {output_path.parent}")
-
+    # Проверка темы
     theme_path = None
     if theme_name:
         theme_path = THEMES_DIR / f"{theme_name}.puml"
@@ -208,12 +207,18 @@ def render_diagram_from_string(
 
     prepared_code = _prepare_diagram_code(diagram_code, theme_path)
 
+    # Вычисляем DPI на основе scale_factor
+    # 1.0 = 96 DPI (стандарт), 2.0 = 192 DPI, 3.0 = 288 DPI
+    dpi = int(96 * scale_factor)
+    logger.debug(f"📏 Масштабирование: scale_factor={scale_factor} → DPI={dpi}")
+
     command = [
         "java",
         "-Dfile.encoding=UTF-8",
         "-Dplantuml.include.path=" + str(THEMES_DIR.absolute()),
         "-Dplantuml.smetana=true",
         "-Dplantuml.graphviz.use=false",
+        f"-DPLANTUML_LIMIT_SIZE=16384",  # Увеличиваем лимит для больших изображений
         "-jar",
         str(PLANTUML_JAR.absolute()),
         "-pipe",
@@ -221,6 +226,11 @@ def render_diagram_from_string(
         "-charset",
         "UTF-8",
     ]
+
+    # Добавляем DPI через skinparam для масштабирования
+    if scale_factor != 1.0:
+        command.insert(command.index("-pipe"), f"-Sdpi={dpi}")
+        logger.debug(f"🔧 Добавлен параметр -Sdpi={dpi} (skinparam dpi)")
 
     logger.debug(f"⚙️ Запуск Java процесса для PlantUML")
 
@@ -261,23 +271,26 @@ def render_diagram_from_string(
                 "Возможно, в коде есть ошибки."
             )
 
-        with open(output_path, "wb") as f:
-            f.write(stdout_data)
+        # Загружаем изображение из байтов только для растровых форматов
+        if format == "png":
+            image = load_image_from_bytes(stdout_data, source_format=format)
 
-        file_size = output_path.stat().st_size
-        file_size_kb = round(file_size / 1024, 2)
+            logger.info(
+                f"✅ Диаграмма отрендерена: {image.width}x{image.height}, "
+                f"размер данных: {len(stdout_data) / 1024:.2f} KB"
+            )
 
-        logger.info(f"💾 Диаграмма сохранена: {output_path}")
-        logger.info(f"✅ Рендеринг завершён успешно ({file_size_kb} KB)")
-
-        return {
-            "success": True,
-            "output_path": str(output_path.absolute()),
-            "format": format,
-            "file_size_kb": file_size_kb,
-            "java_version": java_version,
-            "theme_used": theme_name,
-        }
+            return image
+        else:
+            # Для SVG/EPS/PDF возвращаем заглушку (эти форматы не поддерживают PIL Image)
+            logger.warning(
+                f"⚠️ Формат {format} не поддерживается render_diagram_to_image(). "
+                f"Используйте render_diagram_from_string() для векторных форматов."
+            )
+            raise PlantUMLRenderError(
+                f"Формат {format} не поддерживается для возврата PIL Image. "
+                "Используйте только 'png' для render_diagram_to_image()."
+            )
 
     except subprocess.TimeoutExpired:
         process.kill()
@@ -291,6 +304,172 @@ def render_diagram_from_string(
     except Exception as e:
         logger.error(f"❌ Ошибка при рендеринге: {e}")
         raise PlantUMLRenderError(f"Ошибка при рендеринге диаграммы: {str(e)}")
+
+
+def render_diagram_from_string(
+    diagram_code: str,
+    output_path: str | Path,
+    format: DiagramFormat = "png",
+    theme_name: str | None = "default",
+    scale_factor: float = 1.0,
+) -> dict:
+    """Генерирует диаграмму из PlantUML кода и сохраняет в файл.
+
+    LEGACY функция для обратной совместимости. Для PNG использует render_diagram_to_image()
+    и image_utils. Для SVG/EPS/PDF сохраняет напрямую.
+
+    Args:
+        diagram_code: Исходный код PlantUML диаграммы.
+        output_path: Абсолютный путь к выходному файлу.
+        format: Формат выходного файла (png, svg, eps, pdf).
+        theme_name: Имя темы из папки asset/themes или None.
+        scale_factor: Коэффициент масштабирования (1.0 = стандарт, 3.0 = для 4K).
+                     Применяется только для PNG.
+
+    Returns:
+        Словарь с информацией о результате рендеринга.
+
+    Raises:
+        JavaNotFoundError: Если Java не найдена.
+        PlantUMLSyntaxError: Если PlantUML код содержит синтаксические ошибки.
+        PlantUMLRenderError: Если произошла ошибка рендеринга.
+    """
+    output_path = Path(output_path)
+
+    # Для PNG используем новую функцию с PIL Image
+    if format == "png":
+        # Генерируем изображение через новую функцию
+        image = render_diagram_to_image(
+            diagram_code=diagram_code,
+            format=format,
+            theme_name=theme_name,
+            scale_factor=scale_factor,
+        )
+
+        # Определяем формат для сохранения (из расширения файла или параметра)
+        save_format = output_path.suffix.lstrip(".").lower() or format
+
+        # Сохраняем через image_utils
+        save_result = save_image(
+            image=image,
+            output_path=output_path,
+            format=save_format,  # type: ignore
+        )
+
+        java_version = ensure_java_environment()
+
+        return {
+            "success": True,
+            "output_path": save_result["path"],
+            "format": save_result["format"],
+            "file_size_kb": round(save_result["size_bytes"] / 1024, 2),
+            "dimensions": save_result["dimensions"],
+            "java_version": java_version,
+            "theme_used": theme_name,
+            "scale_factor": scale_factor,
+        }
+
+    # Для SVG/EPS/PDF используем прямое сохранение
+    else:
+        # Инициализация шрифтов
+        logger.debug("🔍 Проверка инициализации кастомных шрифтов")
+        font_init_result = ensure_fonts_initialized()
+
+        if not font_init_result["success"]:
+            logger.error(
+                f"❌ Ошибка инициализации шрифтов: {font_init_result['error']}"
+            )
+            raise JavaNotFoundError(font_init_result["error"])
+
+        java_version = ensure_java_environment()
+
+        if not PLANTUML_JAR.exists():
+            raise FileNotFoundError(f"PlantUML JAR не найден: {PLANTUML_JAR}")
+
+        # Проверка темы
+        theme_path = None
+        if theme_name:
+            theme_path = THEMES_DIR / f"{theme_name}.puml"
+            if not theme_path.exists():
+                raise FileNotFoundError(f"Тема не найдена: {theme_path}")
+
+        prepared_code = _prepare_diagram_code(diagram_code, theme_path)
+
+        command = [
+            "java",
+            "-Dfile.encoding=UTF-8",
+            "-Dplantuml.include.path=" + str(THEMES_DIR.absolute()),
+            "-Dplantuml.smetana=true",
+            "-Dplantuml.graphviz.use=false",
+            "-jar",
+            str(PLANTUML_JAR.absolute()),
+            "-pipe",
+            f"-t{format}",
+            "-charset",
+            "UTF-8",
+        ]
+
+        try:
+            process = subprocess.Popen(
+                command,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            stdout_data, stderr_data = process.communicate(
+                input=prepared_code.encode("utf-8"), timeout=30
+            )
+
+            stderr_text = stderr_data.decode("utf-8", errors="replace").strip()
+
+            if stderr_text and any(
+                err in stderr_text.lower()
+                for err in ["error", "syntax error", "cannot find", "exception"]
+            ):
+                raise PlantUMLSyntaxError(f"PlantUML обнаружил ошибку:\n{stderr_text}")
+
+            if process.returncode != 0:
+                error_message = stderr_text or "Unknown error"
+                raise PlantUMLRenderError(
+                    f"PlantUML вернул ошибку (код {process.returncode}):\n{error_message}"
+                )
+
+            # Создаём директорию если нужно
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Сохраняем напрямую
+            with open(output_path, "wb") as f:
+                f.write(stdout_data)
+
+            file_size = len(stdout_data)
+            logger.info(
+                f"✅ Диаграмма сохранена: {output_path.name}, "
+                f"размер: {file_size / 1024:.2f} KB"
+            )
+
+            return {
+                "success": True,
+                "output_path": str(output_path.absolute()),
+                "format": format,
+                "file_size_kb": round(file_size / 1024, 2),
+                "dimensions": None,  # Нет для векторных форматов
+                "java_version": java_version,
+                "theme_used": theme_name,
+                "scale_factor": scale_factor if format == "png" else None,
+            }
+
+        except subprocess.TimeoutExpired:
+            process.kill()
+            raise PlantUMLRenderError(
+                "Таймаут при рендеринге диаграммы (30 секунд). "
+                "Возможно, диаграмма слишком сложная."
+            )
+        except (PlantUMLSyntaxError, PlantUMLRenderError):
+            raise
+        except Exception as e:
+            logger.error(f"❌ Ошибка при рендеринге: {e}")
+            raise PlantUMLRenderError(f"Ошибка при рендеринге диаграммы: {str(e)}")
 
 
 if __name__ == "__main__":
@@ -319,21 +498,42 @@ Alice -> Bob: Authentication Request
 Bob --> Alice: Authentication Response
 @enduml
 """
-        test_output = Path("/tmp/plantuml_test.png")
+        test_output = Path("tests/output/plantuml_test.png")
 
-        print("\nТестовый рендеринг...")
+        print("\nТестовый рендеринг (1x scale)...")
         result = render_diagram_from_string(
             diagram_code=test_code,
             output_path=test_output,
             format="png",
             theme_name="default",
+            scale_factor=1.0,
         )
 
         print(f"✓ Диаграмма создана: {result['output_path']}")
         print(f"  Размер: {result['file_size_kb']} KB")
         print(f"  Формат: {result['format']}")
-        print(f"  Тема: {result['theme_used']}")
+        print(f"  Разрешение: {result['dimensions']}")
+        print(f"  Масштаб: {result['scale_factor']}x")
+
+        # Тест с высоким разрешением
+        test_output_hq = Path("tests/output/plantuml_test_3x.png")
+        print("\nТестовый рендеринг (3x scale для 4K)...")
+        result_hq = render_diagram_from_string(
+            diagram_code=test_code,
+            output_path=test_output_hq,
+            format="png",
+            theme_name="default",
+            scale_factor=3.0,
+        )
+
+        print(f"✓ Диаграмма HQ создана: {result_hq['output_path']}")
+        print(f"  Размер: {result_hq['file_size_kb']} KB")
+        print(f"  Разрешение: {result_hq['dimensions']}")
+        print(f"  Масштаб: {result_hq['scale_factor']}x")
 
     except Exception as e:
         print(f"✗ Ошибка: {e}")
+        import traceback
+
+        traceback.print_exc()
         sys.exit(1)

@@ -9,11 +9,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from diagram_renderer import (
     render_diagram_from_string,
+    render_diagram_to_image,
     ensure_java_environment,
     JavaNotFoundError,
     PlantUMLRenderError,
     PlantUMLSyntaxError,
 )
+from PIL import Image
+from image_utils import save_image, convert_to_webp
 
 
 class TestJavaEnvironment:
@@ -277,3 +280,165 @@ class TestFormats:
         assert output_file.exists()
         assert result["format"] == format
         assert output_file.suffix == f".{format}"
+
+
+class TestRenderToImage:
+    """Тесты новой функции render_diagram_to_image()."""
+
+    def test_render_to_image_returns_pil_image(self, test_plantuml_code):
+        """Тест что render_diagram_to_image() возвращает PIL Image."""
+        image = render_diagram_to_image(
+            diagram_code=test_plantuml_code,
+            format="png",
+            theme_name="default",
+            scale_factor=1.0,
+        )
+
+        assert isinstance(image, Image.Image)
+        assert image.width > 0
+        assert image.height > 0
+        assert image.mode == "RGB"
+
+    def test_render_to_image_scale_factor_1x(self, test_plantuml_code):
+        """Тест рендеринга с scale_factor=1.0 (96 DPI)."""
+        image = render_diagram_to_image(
+            diagram_code=test_plantuml_code,
+            format="png",
+            theme_name="default",
+            scale_factor=1.0,
+        )
+
+        # Сохраняем ширину для сравнения
+        width_1x = image.width
+        height_1x = image.height
+
+        assert width_1x > 0
+        assert height_1x > 0
+
+    def test_render_to_image_scale_factor_3x(self, test_plantuml_code):
+        """Тест рендеринга с scale_factor=3.0 (288 DPI) - для 4K/print."""
+        image_1x = render_diagram_to_image(
+            diagram_code=test_plantuml_code,
+            format="png",
+            theme_name="default",
+            scale_factor=1.0,
+        )
+
+        image_3x = render_diagram_to_image(
+            diagram_code=test_plantuml_code,
+            format="png",
+            theme_name="default",
+            scale_factor=3.0,
+        )
+
+        # 3x должен быть примерно в 3 раза больше
+        assert image_3x.width > image_1x.width * 2.5
+        assert image_3x.height > image_1x.height * 2.5
+
+    def test_render_to_image_with_webp_conversion(self, test_plantuml_code, output_dir):
+        """Тест конверсии PIL Image в WebP через image_utils."""
+        image = render_diagram_to_image(
+            diagram_code=test_plantuml_code,
+            format="png",
+            theme_name="default",
+            scale_factor=2.0,
+        )
+
+        # Конвертируем в WebP
+        webp_bytes = convert_to_webp(image, quality=85)
+
+        assert isinstance(webp_bytes, bytes)
+        assert len(webp_bytes) > 0
+
+        # Можем сохранить через save_image
+        output_file = output_dir / "diagram_from_image.webp"
+        result = save_image(image, output_file, format="webp")
+
+        assert result["success"] is True
+        assert output_file.exists()
+        assert result["format"] == "webp"
+
+    def test_render_to_image_without_theme(self, test_plantuml_code):
+        """Тест рендеринга без темы."""
+        image = render_diagram_to_image(
+            diagram_code=test_plantuml_code,
+            format="png",
+            theme_name=None,
+            scale_factor=1.0,
+        )
+
+        assert isinstance(image, Image.Image)
+
+    def test_render_to_image_cyrillic(self):
+        """Тест рендеринга кириллицы в PIL Image."""
+        code = """
+@startuml
+Alice -> Bob: Привет!
+Bob --> Alice: Здравствуй!
+@enduml
+"""
+        image = render_diagram_to_image(
+            diagram_code=code,
+            format="png",
+            theme_name="default",
+            scale_factor=1.0,
+        )
+
+        assert isinstance(image, Image.Image)
+        assert image.width > 0
+
+
+class TestScaleFactorIntegration:
+    """Интеграционные тесты scale_factor с render_diagram_from_string()."""
+
+    def test_legacy_function_with_scale_factor(self, test_plantuml_code, output_dir):
+        """Тест что render_diagram_from_string() поддерживает scale_factor."""
+        output_file = output_dir / "diagram_scaled_3x.png"
+
+        result = render_diagram_from_string(
+            diagram_code=test_plantuml_code,
+            output_path=str(output_file),
+            format="png",
+            theme_name="default",
+            scale_factor=3.0,
+        )
+
+        assert result["success"] is True
+        assert result["scale_factor"] == 3.0
+        assert output_file.exists()
+
+        # Проверяем размер изображения
+        loaded = Image.open(output_file)
+        assert loaded.width > 500  # Для 3x должно быть большое
+
+    def test_scale_factor_1x_vs_3x_file_sizes(self, test_plantuml_code, output_dir):
+        """Тест что 3x генерирует больший файл чем 1x."""
+        output_1x = output_dir / "diagram_1x.png"
+        output_3x = output_dir / "diagram_3x.png"
+
+        result_1x = render_diagram_from_string(
+            diagram_code=test_plantuml_code,
+            output_path=str(output_1x),
+            format="png",
+            scale_factor=1.0,
+        )
+
+        result_3x = render_diagram_from_string(
+            diagram_code=test_plantuml_code,
+            output_path=str(output_3x),
+            format="png",
+            scale_factor=3.0,
+        )
+
+        assert result_1x["success"] is True
+        assert result_3x["success"] is True
+
+        # 3x должен быть тяжелее
+        assert result_3x["file_size_kb"] > result_1x["file_size_kb"]
+
+        # Проверяем реальные размеры
+        img_1x = Image.open(output_1x)
+        img_3x = Image.open(output_3x)
+
+        assert img_3x.width > img_1x.width * 2.5
+        assert img_3x.height > img_1x.height * 2.5
