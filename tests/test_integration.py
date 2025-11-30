@@ -390,3 +390,191 @@ class TestEndToEndScenarios:
 
             assert result["success"] is True
             assert output_file.exists()
+
+
+class TestCodeScreenshotsPersistent:
+    """
+    Тесты скриншотов кода с ПОСТОЯННЫМ сохранением в tests/output/.
+
+    Используют фикстуру output_dir из conftest.py.
+    Результаты остаются после тестов для визуальной проверки.
+    """
+
+    @pytest.fixture
+    def sample_code_path(self):
+        """Путь к тестовому Python файлу."""
+        return Path(__file__).parent / "assets" / "sample_code.py"
+
+    @pytest.fixture
+    def output_dir(self):
+        """Директория для ПОСТОЯННОГО сохранения результатов."""
+        output = Path(__file__).parent / "output"
+        output.mkdir(exist_ok=True)
+        return output
+
+    def test_code_full_file_dark_webp(self, sample_code_path, output_dir):
+        """Тест: скриншот полного файла — dark theme + WebP + JetBrainsMono."""
+        output_file = output_dir / "code_full_file_dark.webp"
+
+        with open(sample_code_path, "r", encoding="utf-8") as f:
+            code = f.read()
+
+        img = create_code_image(
+            code_string=code,
+            language="python",
+            style="monokai",  # dark theme
+            line_numbers=True,
+            font_name="JetBrainsMono",
+            font_size=14,
+            scale_factor=3.0,  # High quality
+        )
+
+        from src.image_utils import save_image
+
+        result = save_image(img, str(output_file), format="webp", quality=90)
+
+        assert result["success"] is True
+        assert output_file.exists()
+        assert output_file.stat().st_size > 0
+
+        # Проверяем размеры изображения
+        loaded = Image.open(output_file)
+        assert loaded.width >= 800  # High quality должен давать большой размер
+
+    def test_code_function_dark_webp(self, sample_code_path, output_dir):
+        """Тест: скриншот функции — dark theme + WebP + JetBrainsMono."""
+        output_file = output_dir / "code_function_dark.webp"
+
+        code = extract_code_entity(
+            file_path=str(sample_code_path),
+            entity_name="calculate_sum",
+        )
+
+        img = create_code_image(
+            code_string=code,
+            language="python",
+            style="dracula",  # another dark theme
+            line_numbers=True,
+            font_name="JetBrainsMono",
+            font_size=16,
+            scale_factor=3.0,
+        )
+
+        from src.image_utils import save_image
+
+        result = save_image(img, str(output_file), format="webp", quality=90)
+
+        assert result["success"] is True
+        assert output_file.exists()
+        assert "def calculate_sum" in code
+
+    def test_code_class_dark_webp(self, sample_code_path, output_dir):
+        """Тест: скриншот класса — dark theme + WebP + JetBrainsMono."""
+        output_file = output_dir / "code_class_dark.webp"
+
+        code = extract_code_entity(
+            file_path=str(sample_code_path),
+            entity_name="OrderService",
+        )
+
+        img = create_code_image(
+            code_string=code,
+            language="python",
+            style="monokai",
+            line_numbers=True,
+            font_name="JetBrainsMono",
+            font_size=14,
+            scale_factor=3.0,
+        )
+
+        from src.image_utils import save_image
+
+        result = save_image(img, str(output_file), format="webp", quality=90)
+
+        assert result["success"] is True
+        assert output_file.exists()
+        assert "class OrderService:" in code
+
+    def test_code_method_dark_webp(self, sample_code_path, output_dir):
+        """Тест: скриншот метода класса — dark theme + WebP + JetBrainsMono."""
+        output_file = output_dir / "code_method_dark.webp"
+
+        code = extract_code_entity(
+            file_path=str(sample_code_path),
+            entity_name="OrderService.create_order",
+            include_decorators=True,
+        )
+
+        img = create_code_image(
+            code_string=code,
+            language="python",
+            style="vim",  # another dark theme
+            line_numbers=True,
+            font_name="JetBrainsMono",
+            font_size=15,
+            scale_factor=3.0,
+        )
+
+        from src.image_utils import save_image
+
+        result = save_image(img, str(output_file), format="webp", quality=90)
+
+        assert result["success"] is True
+        assert output_file.exists()
+        assert "def create_order" in code
+
+    def test_code_dataclass_dark_webp(self, sample_code_path, output_dir):
+        """Тест: скриншот dataclass — dark theme + WebP + JetBrainsMono."""
+        output_file = output_dir / "code_dataclass_dark.webp"
+
+        code = extract_code_entity(
+            file_path=str(sample_code_path),
+            entity_name="User",
+            include_decorators=True,  # включить @dataclass
+        )
+
+        img = create_code_image(
+            code_string=code,
+            language="python",
+            style="monokai",
+            line_numbers=True,
+            font_name="JetBrainsMono",
+            font_size=14,
+            scale_factor=3.0,
+        )
+
+        from src.image_utils import save_image
+
+        result = save_image(img, str(output_file), format="webp", quality=90)
+
+        assert result["success"] is True
+        assert output_file.exists()
+        assert "@dataclass" in code
+        assert "class User:" in code
+
+    def test_code_async_function_dark_webp(self, sample_code_path, output_dir):
+        """Тест: скриншот async функции — dark theme + WebP + JetBrainsMono."""
+        output_file = output_dir / "code_async_dark.webp"
+
+        code = extract_code_entity(
+            file_path=str(sample_code_path),
+            entity_name="fetch_data",
+        )
+
+        img = create_code_image(
+            code_string=code,
+            language="python",
+            style="github-dark",
+            line_numbers=True,
+            font_name="JetBrainsMono",
+            font_size=14,
+            scale_factor=3.0,
+        )
+
+        from src.image_utils import save_image
+
+        result = save_image(img, str(output_file), format="webp", quality=90)
+
+        assert result["success"] is True
+        assert output_file.exists()
+        assert "async def fetch_data" in code
