@@ -132,7 +132,7 @@ def generate_code_screenshot(
         code: Исходный код для генерации изображения.
         language: Язык программирования (python, typescript, javascript, sql).
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
-        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        detail_level: Уровень детализации ('Low', 'Medium', 'High', 'Ultra', 'Extreme').
         image_format: Формат изображения ('webp', 'png', 'jpeg').
         style: Стиль подсветки (monokai, dracula, github-dark, vim).
         font_size: Базовый размер шрифта (умножается на detail_level).
@@ -142,8 +142,11 @@ def generate_code_screenshot(
     Returns:
         Словарь с информацией о созданном изображении.
     """
-    # Конвертируем detail_level в scale_factor
-    scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+    # Конвертируем detail_level в scale_factor через QUALITY_LEVELS
+    from src.diagram_renderer import QUALITY_LEVELS
+
+    level_key = detail_level.capitalize()
+    scale_factor = QUALITY_LEVELS.get(level_key, 3.0)  # Fallback на High
 
     return _generate_screenshot_from_code(
         code=code,
@@ -178,7 +181,7 @@ def generate_file_screenshot(
         file_path: АБСОЛЮТНЫЙ путь к файлу с исходным кодом.
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
         language: Язык программирования (если None - определяется по расширению).
-        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        detail_level: Уровень детализации ('Low', 'Medium', 'High', 'Ultra', 'Extreme').
         image_format: Формат изображения ('webp', 'png', 'jpeg').
         style: Стиль подсветки (monokai, dracula, github-dark, vim).
         font_size: Базовый размер шрифта (умножается на detail_level).
@@ -268,8 +271,11 @@ def generate_file_screenshot(
             language = ext_to_lang.get(ext.lower(), "text")
             logger.debug(f"🔍 Определён язык по расширению: {language}")
 
-        # Конвертируем detail_level в scale_factor
-        scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+        # Конвертируем detail_level в scale_factor через QUALITY_LEVELS
+        from src.diagram_renderer import QUALITY_LEVELS
+
+        level_key = detail_level.capitalize()
+        scale_factor = QUALITY_LEVELS.get(level_key, 3.0)  # Fallback на High
 
         result = _generate_screenshot_from_code(
             code=code,
@@ -335,7 +341,7 @@ def generate_entity_screenshot(
             - "ClassName.method_name" для метода класса
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
         include_decorators: Включать декораторы (@tool, @pytest.fixture, etc) в скриншот.
-        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        detail_level: Уровень детализации ('Low', 'Medium', 'High', 'Ultra', 'Extreme').
         image_format: Формат изображения ('webp', 'png', 'jpeg').
         style: Стиль подсветки (monokai, dracula, github-dark, vim).
         font_size: Базовый размер шрифта (умножается на detail_level).
@@ -359,8 +365,11 @@ def generate_entity_screenshot(
 
         logger.debug(f"✅ Извлечено {len(extracted_code)} символов кода")
 
-        # Конвертируем detail_level в scale_factor
-        scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+        # Конвертируем detail_level в scale_factor через QUALITY_LEVELS
+        from src.diagram_renderer import QUALITY_LEVELS
+
+        level_key = detail_level.capitalize()
+        scale_factor = QUALITY_LEVELS.get(level_key, 3.0)  # Fallback на High
 
         # Генерируем скриншот извлечённого кода
         result = _generate_screenshot_from_code(
@@ -446,7 +455,7 @@ def generate_architecture_diagram(
     Args:
         diagram_code: PlantUML код диаграммы.
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
-        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        detail_level: Уровень детализации ('Low', 'Medium', 'High', 'Ultra', 'Extreme').
         image_format: Формат изображения ('png', 'svg', 'eps', 'pdf', 'webp').
         theme_name: Имя темы оформления (default или None).
 
@@ -480,8 +489,11 @@ def generate_architecture_diagram(
                 },
             }
 
-        # Конвертируем detail_level в scale_factor
-        scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+        # Конвертируем detail_level в scale_factor через QUALITY_LEVELS
+        from src.diagram_renderer import QUALITY_LEVELS
+
+        level_key = detail_level.capitalize()
+        scale_factor = QUALITY_LEVELS.get(level_key, 3.0)  # Fallback на High
 
         result = render_diagram_from_string(
             diagram_code=diagram_code,
@@ -554,7 +566,7 @@ def generate_diagram_from_file(
     Args:
         file_path: АБСОЛЮТНЫЙ путь к .puml файлу с PlantUML кодом.
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу изображения.
-        detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
+        detail_level: Уровень детализации ('Low', 'Medium', 'High', 'Ultra', 'Extreme').
         image_format: Формат изображения ('png', 'svg', 'eps', 'pdf', 'webp').
         theme_name: Имя темы оформления (default или None).
 
@@ -605,8 +617,11 @@ def generate_diagram_from_file(
                 },
             }
 
-        # Конвертируем detail_level в scale_factor
-        scale_factor = 3.0 if detail_level.lower() == "high" else 1.0
+        # Конвертируем detail_level в scale_factor через QUALITY_LEVELS
+        from src.diagram_renderer import QUALITY_LEVELS
+
+        level_key = detail_level.capitalize()
+        scale_factor = QUALITY_LEVELS.get(level_key, 3.0)  # Fallback на High
 
         # Генерируем диаграмму
         result = render_diagram_from_string(

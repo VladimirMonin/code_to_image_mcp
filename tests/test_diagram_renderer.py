@@ -442,3 +442,95 @@ class TestScaleFactorIntegration:
 
         assert img_3x.width > img_1x.width * 2.5
         assert img_3x.height > img_1x.height * 2.5
+
+    def test_extreme_quality_level(self, test_plantuml_code, output_dir):
+        """Тест Extreme уровня качества (6.0x масштаб) для Deep Zoom."""
+        output_extreme = output_dir / "diagram_extreme.png"
+
+        result = render_diagram_from_string(
+            diagram_code=test_plantuml_code,
+            output_path=str(output_extreme),
+            format="png",
+            scale_factor=6.0,  # Extreme: 576 DPI
+        )
+
+        assert result["success"] is True
+        assert result["output_path"] == str(output_extreme)
+
+        # Проверяем что файл создан
+        assert output_extreme.exists()
+
+        # Загружаем изображение для проверки размеров
+        img_extreme = Image.open(output_extreme)
+
+        # Extreme (6x) должен давать размер >1600px для профессиональной печати
+        assert img_extreme.width >= 1600, (
+            f"Extreme качество должно давать ширину >=1600px, получено {img_extreme.width}"
+        )
+        assert img_extreme.height >= 900, (
+            f"Extreme качество должно давать высоту >=900px, получено {img_extreme.height}"
+        )
+
+        # Проверяем что размер файла значительно больше чем для Low (1x)
+        output_1x = output_dir / "diagram_1x_compare.png"
+        result_1x = render_diagram_from_string(
+            diagram_code=test_plantuml_code,
+            output_path=str(output_1x),
+            format="png",
+            scale_factor=1.0,
+        )
+
+        img_1x = Image.open(output_1x)
+
+        # 6x должен быть ровно в 6 раз больше (с допуском на округление)
+        expected_width = img_1x.width * 6
+        expected_height = img_1x.height * 6
+
+        assert abs(img_extreme.width - expected_width) <= 5, (
+            f"6x width должен быть {expected_width}±5, получено {img_extreme.width}"
+        )
+        assert abs(img_extreme.height - expected_height) <= 5, (
+            f"6x height должен быть {expected_height}±5, получено {img_extreme.height}"
+        )
+
+    def test_webp_quality_levels(self, test_plantuml_code, output_dir):
+        """Тест всех уровней качества для WebP формата."""
+        from src.diagram_renderer import QUALITY_LEVELS
+
+        results = {}
+
+        for level, scale in QUALITY_LEVELS.items():
+            output_file = output_dir / f"webp_quality_{level.lower()}.webp"
+
+            result = render_diagram_from_string(
+                diagram_code=test_plantuml_code,
+                output_path=str(output_file),
+                format="webp",
+                scale_factor=scale,
+            )
+
+            assert result["success"] is True
+            assert output_file.exists()
+
+            img = Image.open(output_file)
+            results[level] = {
+                "width": img.width,
+                "height": img.height,
+                "scale": scale,
+            }
+
+        # Проверяем что каждый уровень больше предыдущего
+        low_width = results["Low"]["width"]
+
+        assert results["Medium"]["width"] / low_width >= 1.9, (
+            "Medium должен быть ~2x от Low"
+        )
+        assert results["High"]["width"] / low_width >= 2.9, (
+            "High должен быть ~3x от Low"
+        )
+        assert results["Ultra"]["width"] / low_width >= 3.9, (
+            "Ultra должен быть ~4x от Low"
+        )
+        assert results["Extreme"]["width"] / low_width >= 5.8, (
+            "Extreme должен быть ~6x от Low"
+        )

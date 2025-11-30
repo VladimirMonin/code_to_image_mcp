@@ -39,6 +39,16 @@ ASSET_DIR = Path(__file__).parent.parent / "asset"
 PLANTUML_JAR = ASSET_DIR / "bins" / "plantuml.jar"
 THEMES_DIR = ASSET_DIR / "themes"
 
+# Маппинг уровней детализации в коэффициенты масштабирования
+# Базовый DPI = 96. Extreme (6.0) дает ~576 DPI для профессиональной печати.
+QUALITY_LEVELS = {
+    "Low": 1.0,  # 96 DPI (Web preview)
+    "Medium": 2.0,  # 192 DPI (Standard screens)
+    "High": 3.0,  # 288 DPI (High-res screens / Default)
+    "Ultra": 4.0,  # 384 DPI (4K Presentations)
+    "Extreme": 6.0,  # 576 DPI (Print / Deep Zoom)
+}
+
 # Поддерживаемые форматы
 DiagramFormat = Literal["png", "svg", "eps", "pdf"]
 
@@ -109,20 +119,28 @@ def ensure_java_environment() -> str:
         raise JavaNotFoundError(f"Ошибка при проверке Java: {str(e)}")
 
 
-def _prepare_diagram_code(diagram_code: str, theme_path: Path | None = None) -> str:
-    """Подготавливает код диаграммы с темой и Smetana.
+def _prepare_diagram_code(
+    diagram_code: str, theme_path: Path | None = None, dpi: int | None = None
+) -> str:
+    """Подготавливает код диаграммы с темой, Smetana и DPI.
 
     Args:
         diagram_code: Исходный код PlantUML диаграммы.
         theme_path: Путь к файлу темы (.puml).
+        dpi: DPI для инъекции в код через skinparam (обход ограничения Smetana).
 
     Returns:
-        Код диаграммы с включенной темой и !pragma layout smetana.
+        Код диаграммы с включенной темой, !pragma layout smetana и skinparam dpi.
     """
     lines = diagram_code.strip().split("\n")
     has_startuml = lines[0].strip().startswith("@startuml")
 
     directives = ["!pragma layout smetana"]
+
+    # HARD INJECTION: Smetana игнорирует флаг -Sdpi, поэтому вшиваем в код
+    if dpi and dpi > 96:
+        directives.append(f"skinparam dpi {dpi}")
+        logger.debug(f"💉 DPI инъекция в PlantUML код: skinparam dpi {dpi}")
 
     if theme_path and theme_path.exists():
         directives.append(f"!include {theme_path.absolute()}")
@@ -205,12 +223,12 @@ def render_diagram_to_image(
             )
         logger.info(f"🎨 Применение темы: {theme_name}")
 
-    prepared_code = _prepare_diagram_code(diagram_code, theme_path)
-
     # Вычисляем DPI на основе scale_factor
-    # 1.0 = 96 DPI (стандарт), 2.0 = 192 DPI, 3.0 = 288 DPI
+    # 1.0 = 96 DPI (стандарт), 2.0 = 192 DPI, 3.0 = 288 DPI, 6.0 = 576 DPI
     dpi = int(96 * scale_factor)
-    logger.debug(f"📏 Масштабирование: scale_factor={scale_factor} → DPI={dpi}")
+    logger.debug(f"📏 Force DPI Injection: {dpi} (Scale: {scale_factor}x)")
+
+    prepared_code = _prepare_diagram_code(diagram_code, theme_path, dpi)
 
     command = [
         "java",
@@ -226,11 +244,6 @@ def render_diagram_to_image(
         "-charset",
         "UTF-8",
     ]
-
-    # Добавляем DPI через skinparam для масштабирования
-    if scale_factor != 1.0:
-        command.insert(command.index("-pipe"), f"-Sdpi={dpi}")
-        logger.debug(f"🔧 Добавлен параметр -Sdpi={dpi} (skinparam dpi)")
 
     logger.debug(f"⚙️ Запуск Java процесса для PlantUML")
 
