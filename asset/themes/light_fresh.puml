@@ -1,0 +1,73 @@
+' === THEME: LIGHT FRESH ===
+' Твоя фирменная мятная тема
+
+' 1. ШРИФТЫ
+skinparam defaultFontName "JetBrains Mono"
+skinparam defaultFontSize 14
+skinparam roundCorner 15
+skinparam shadowing false
+
+' 2. ГЛОБАЛЬНЫЙ ФОН
+skinparam backgroundColor #f0faf5
+skinparam titleFontColor #0b2e1d
+
+' 3. ЛИНИИ
+skinparam arrowColor #294f3d
+skinparam arrowFontColor #0b2e1d
+
+' 4. ПОСЛЕДОВАТЕЛЬНОСТЬ
+skinparam sequence {
+    LifeLineBorderColor #294f3d
+    LifeLineBackgroundColor #4dd191
+    ParticipantBorderColor #294f3d
+    ParticipantBackgroundColor #F0FFF0
+    ParticipantFontColor #0b2e1d
+}
+
+' 5. СТЕРЕОТИПЫ (Цвета из твоего примера)
+
+' <<Adapter>> - Высокий уровень (Зеленый #4dd191)
+skinparam class<<Adapter>> {
+    BackgroundColor #F0FFF0
+    BorderColor #4dd191
+    FontColor #0b2e1d
+    HeaderBackgroundColor #4dd191
+}
+skinparam component<<Adapter>> {
+    BackgroundColor #F0FFF0
+    BorderColor #4dd191
+    FontColor #0b2e1d
+}
+
+' <<Core>> - Средний уровень (Желтый #e3c764)
+skinparam class<<Core>> {
+    BackgroundColor #FFFFF5
+    BorderColor #e3c764
+    FontColor #0b2e1d
+    HeaderBackgroundColor #e3c764
+}
+skinparam component<<Core>> {
+    BackgroundColor #FFFFF5
+    BorderColor #e3c764
+    FontColor #0b2e1d
+}
+
+' <<Infrastructure>> - Низкий уровень (Синий #b5beeb)
+skinparam class<<Infrastructure>> {
+    BackgroundColor #F5F5FF
+    BorderColor #b5beeb
+    FontColor #0b2e1d
+    HeaderBackgroundColor #b5beeb
+}
+skinparam component<<Infrastructure>> {
+    BackgroundColor #F5F5FF
+    BorderColor #b5beeb
+    FontColor #0b2e1d
+}
+
+' Пакеты (Package)
+skinparam package {
+    BackgroundColor #F0FFF0
+    BorderColor #294f3d
+    FontColor #0b2e1d
+}

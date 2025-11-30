@@ -1,0 +1,96 @@
+' === THEME: DARK GOLD ===
+' Строгая темная тема с золотым акцентом
+
+' 1. ГЛОБАЛЬНЫЕ НАСТРОЙКИ И ШРИФТЫ
+' Хакинг шрифтов из Фазы 0 позволяет писать их названия прямо здесь
+skinparam defaultFontName "JetBrains Mono"
+skinparam defaultFontSize 14
+skinparam roundCorner 10
+skinparam shadowing false
+skinparam handwritten false
+
+' 2. ЦВЕТОВАЯ ПАЛИТРА
+!define DARK_BG #222222
+!define LIGHT_TEXT #EEEEEE
+!define ACCENT_GOLD #FFB300
+!define ACCENT_GOLD_LIGHT #FFCA28
+!define BORDER_COLOR #FFFFFF
+
+' 3. ОСНОВНОЙ ФОН
+skinparam backgroundColor DARK_BG
+skinparam canvasBackgroundColor DARK_BG
+
+' 4. СТРЕЛКИ И ЛИНИИ
+skinparam arrowColor BORDER_COLOR
+skinparam arrowFontColor LIGHT_TEXT
+skinparam arrowThickness 1.5
+
+' 5. ДИАГРАММЫ ПОСЛЕДОВАТЕЛЬНОСТИ (Твоя просьба про золотые бары)
+skinparam sequence {
+    LifeLineBorderColor ACCENT_GOLD
+    LifeLineBackgroundColor ACCENT_GOLD_LIGHT
+    ParticipantBorderColor BORDER_COLOR
+    ParticipantBackgroundColor DARK_BG
+    ParticipantFontColor LIGHT_TEXT
+    
+    ActorBorderColor BORDER_COLOR
+    ActorBackgroundColor DARK_BG
+    ActorFontColor LIGHT_TEXT
+}
+
+' 6. СТЕРЕОТИПЫ (Ролевая модель)
+
+' <<Adapter>> - Входные точки (Белые контуры, строгость)
+skinparam class<<Adapter>> {
+    BackgroundColor #333333
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+    HeaderBackgroundColor #444444
+}
+
+' <<Core>> - Логика (Золотой акцент, чтобы сразу видеть суть)
+skinparam class<<Core>> {
+    BackgroundColor #4d3e1a
+    BorderColor ACCENT_GOLD
+    FontColor ACCENT_GOLD
+    HeaderBackgroundColor #332b15
+}
+
+' <<Infrastructure>> - База/Драйверы (Приглушенный серый)
+skinparam class<<Infrastructure>> {
+    BackgroundColor #2a2a2a
+    BorderColor #888888
+    FontColor #AAAAAA
+}
+
+skinparam component<<Adapter>> {
+    BackgroundColor #333333
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+
+skinparam component<<Core>> {
+    BackgroundColor #4d3e1a
+    BorderColor ACCENT_GOLD
+    FontColor ACCENT_GOLD
+}
+
+skinparam component<<Infrastructure>> {
+    BackgroundColor #2a2a2a
+    BorderColor #888888
+    FontColor #AAAAAA
+}
+
+' 7. КОМПОНЕНТЫ БЕЗ СТЕРЕОТИПОВ (общие настройки)
+skinparam component {
+    BackgroundColor #333333
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}
+
+' 8. PACKAGE (пакеты)
+skinparam package {
+    BackgroundColor DARK_BG
+    BorderColor BORDER_COLOR
+    FontColor LIGHT_TEXT
+}

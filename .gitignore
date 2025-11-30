@@ -9,3 +9,4 @@
 # Игнорируем output файлы тестов
 tests/output/*
 !tests/output/.gitkeep
+.backups/
