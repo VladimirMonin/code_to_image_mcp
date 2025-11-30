@@ -1,0 +1,43 @@
+@startuml
+' Тестовая диаграмма компонентов для интеграционного теста
+
+package "Presentation Layer" {
+  component "Django Views" <<Adapter>> as Views
+  component "REST API" <<Adapter>> as API
+  component "GraphQL API" <<Adapter>> as GraphQL
+}
+
+package "Business Logic Layer" {
+  component "Order Service" <<Core>> as OrderSvc
+  component "Payment Logic" <<Core>> as PaymentLogic
+  component "Inventory Service" <<Core>> as InventorySvc
+  component "Notification Service" <<Core>> as NotifySvc
+}
+
+package "Data Access Layer" {
+  component "PostgreSQL Client" <<Infrastructure>> as PgSQL
+  component "Redis Cache" <<Infrastructure>> as Redis
+  component "S3 Storage" <<Infrastructure>> as S3
+  component "Email Gateway" <<Infrastructure>> as Email
+}
+
+Views --> OrderSvc
+API --> OrderSvc
+GraphQL --> OrderSvc
+
+OrderSvc --> PaymentLogic
+OrderSvc --> InventorySvc
+OrderSvc --> NotifySvc
+
+PaymentLogic --> PgSQL
+InventorySvc --> PgSQL
+InventorySvc --> Redis
+NotifySvc --> Email
+OrderSvc --> S3
+
+note right of OrderSvc
+  Центральный сервис
+  координирует бизнес-процессы
+end note
+
+@enduml

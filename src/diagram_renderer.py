@@ -148,7 +148,7 @@ def render_diagram_to_image(
 
     Args:
         diagram_code: Исходный код PlantUML диаграммы.
-        format: Формат рендеринга (png, svg, eps, pdf).
+        format: Формат рендеринга (png, svg, eps, pdf, webp).
         theme_name: Имя темы из папки asset/themes или None.
         scale_factor: Коэффициент масштабирования для увеличения разрешения.
                      1.0 = 96 DPI (стандарт), 2.0 = 192 DPI, 3.0 = 288 DPI.
@@ -321,7 +321,7 @@ def render_diagram_from_string(
     Args:
         diagram_code: Исходный код PlantUML диаграммы.
         output_path: Абсолютный путь к выходному файлу.
-        format: Формат выходного файла (png, svg, eps, pdf).
+        format: Формат выходного файла (png, svg, eps, pdf, webp).
         theme_name: Имя темы из папки asset/themes или None.
         scale_factor: Коэффициент масштабирования (1.0 = стандарт, 3.0 = для 4K).
                      Применяется только для PNG.
@@ -336,12 +336,12 @@ def render_diagram_from_string(
     """
     output_path = Path(output_path)
 
-    # Для PNG используем новую функцию с PIL Image
-    if format == "png":
+    # Для PNG/WebP используем новую функцию с PIL Image
+    if format in ("png", "webp"):
         # Генерируем изображение через новую функцию
         image = render_diagram_to_image(
             diagram_code=diagram_code,
-            format=format,
+            format="png",  # PlantUML всегда генерирует PNG, конвертируем потом
             theme_name=theme_name,
             scale_factor=scale_factor,
         )

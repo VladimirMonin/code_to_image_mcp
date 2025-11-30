@@ -447,7 +447,7 @@ def generate_architecture_diagram(
         diagram_code: PlantUML код диаграммы.
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу.
         detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
-        image_format: Формат изображения ('png', 'svg', 'eps', 'pdf').
+        image_format: Формат изображения ('png', 'svg', 'eps', 'pdf', 'webp').
         theme_name: Имя темы оформления (default или None).
 
     Returns:
@@ -555,7 +555,7 @@ def generate_diagram_from_file(
         file_path: АБСОЛЮТНЫЙ путь к .puml файлу с PlantUML кодом.
         output_path: АБСОЛЮТНЫЙ путь к выходному файлу изображения.
         detail_level: Уровень детализации ('Low' 1.0x для web, 'High' 3.0x для 4K/print).
-        image_format: Формат изображения ('png', 'svg', 'eps', 'pdf').
+        image_format: Формат изображения ('png', 'svg', 'eps', 'pdf', 'webp').
         theme_name: Имя темы оформления (default или None).
 
     Returns:

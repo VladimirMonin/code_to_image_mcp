@@ -108,7 +108,7 @@ rectangle "Default Font" {
     def test_check_gdi_loaded_fonts(self):
         """Проверка, что load_custom_fonts действительно вызывается."""
         import logging
-        from font_manager import load_custom_fonts
+        from src.font_manager import load_custom_fonts
 
         # Включаем подробное логирование
         logging.basicConfig(level=logging.DEBUG)

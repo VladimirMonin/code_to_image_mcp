@@ -1,0 +1,45 @@
+@startuml
+' Тестовая диаграмма классов для интеграционного теста
+
+class "OrderController" <<Adapter>> {
+  - order_service: OrderService
+  + create_order(request: Request): Response
+  + get_order(order_id: int): Response
+  + list_orders(): Response
+}
+
+class "OrderService" <<Core>> {
+  - repository: OrderRepository
+  - payment: PaymentService
+  + create_order(data: dict): Order
+  + validate_order(data: dict): bool
+  + calculate_total(items: list): float
+}
+
+class "PaymentService" <<Core>> {
+  - gateway: PaymentGateway
+  - validator: PaymentValidator
+  + process_payment(amount: float): bool
+  + refund_payment(transaction_id: str): bool
+}
+
+class "OrderRepository" <<Infrastructure>> {
+  - db_connection: Connection
+  + save(order: Order): int
+  + find_by_id(id: int): Order
+  + find_all(): list
+}
+
+class "PaymentGateway" <<Infrastructure>> {
+  - api_key: str
+  - endpoint: str
+  + charge(amount: float, token: str): str
+  + verify(transaction_id: str): bool
+}
+
+"OrderController" --> "OrderService" : uses
+"OrderService" --> "PaymentService" : uses
+"OrderService" --> "OrderRepository" : uses
+"PaymentService" --> "PaymentGateway" : uses
+
+@enduml

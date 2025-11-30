@@ -1,0 +1,42 @@
+@startuml
+' Тестовая диаграмма последовательности для интеграционного теста
+
+actor User as U
+participant "Web App" as WA
+participant "Order Service" as OS
+participant "Payment Service" as PS
+database "PostgreSQL" as DB
+
+U -> WA: Создать заказ
+activate WA
+
+WA -> OS: create_order(user_id, items)
+activate OS
+
+OS -> OS: validate_items()
+OS -> PS: calculate_total(items)
+activate PS
+PS --> OS: total_amount
+deactivate PS
+
+OS -> PS: process_payment(amount, card)
+activate PS
+PS -> DB: save_transaction()
+activate DB
+DB --> PS: transaction_id
+deactivate DB
+PS --> OS: payment_confirmed
+deactivate PS
+
+OS -> DB: save_order(order_data)
+activate DB
+DB --> OS: order_id
+deactivate DB
+
+OS --> WA: order_created
+deactivate OS
+
+WA --> U: Заказ №12345
+deactivate WA
+
+@enduml

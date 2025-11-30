@@ -45,6 +45,8 @@ skinparam class<<Adapter>> {
     BackgroundColor #333333
     BorderColor BORDER_COLOR
     FontColor LIGHT_TEXT
+    AttributeFontColor LIGHT_TEXT
+    StereotypeFontColor LIGHT_TEXT
     HeaderBackgroundColor #444444
 }
 
@@ -52,7 +54,9 @@ skinparam class<<Adapter>> {
 skinparam class<<Core>> {
     BackgroundColor #4d3e1a
     BorderColor ACCENT_GOLD
-    FontColor ACCENT_GOLD
+    FontColor LIGHT_TEXT
+    AttributeFontColor LIGHT_TEXT
+    StereotypeFontColor ACCENT_GOLD_LIGHT
     HeaderBackgroundColor #332b15
 }
 
@@ -60,7 +64,9 @@ skinparam class<<Core>> {
 skinparam class<<Infrastructure>> {
     BackgroundColor #2a2a2a
     BorderColor #888888
-    FontColor #AAAAAA
+    FontColor LIGHT_TEXT
+    AttributeFontColor LIGHT_TEXT
+    StereotypeFontColor LIGHT_TEXT
 }
 
 skinparam component<<Adapter>> {
@@ -72,13 +78,13 @@ skinparam component<<Adapter>> {
 skinparam component<<Core>> {
     BackgroundColor #4d3e1a
     BorderColor ACCENT_GOLD
-    FontColor ACCENT_GOLD
+    FontColor LIGHT_TEXT
 }
 
 skinparam component<<Infrastructure>> {
     BackgroundColor #2a2a2a
     BorderColor #888888
-    FontColor #AAAAAA
+    FontColor LIGHT_TEXT
 }
 
 ' 7. КОМПОНЕНТЫ БЕЗ СТЕРЕОТИПОВ (общие настройки)
@@ -93,4 +99,35 @@ skinparam package {
     BackgroundColor DARK_BG
     BorderColor BORDER_COLOR
     FontColor LIGHT_TEXT
+}
+
+' 9. ACTIVITY ДИАГРАММЫ (Золотые акценты для действий)
+skinparam activity {
+    BackgroundColor #333333
+    BorderColor ACCENT_GOLD
+    FontColor LIGHT_TEXT
+    BarColor ACCENT_GOLD
+    StartColor ACCENT_GOLD
+    EndColor ACCENT_GOLD
+    DiamondBackgroundColor #4d3e1a
+    DiamondBorderColor ACCENT_GOLD
+    DiamondFontColor LIGHT_TEXT
+}
+
+skinparam activityDiamond {
+    BackgroundColor #4d3e1a
+    BorderColor ACCENT_GOLD
+    FontColor LIGHT_TEXT
+}
+
+skinparam activityStart {
+    Color ACCENT_GOLD
+}
+
+skinparam activityEnd {
+    Color ACCENT_GOLD
+}
+
+skinparam activityBar {
+    Color ACCENT_GOLD
 }
