@@ -371,8 +371,9 @@ def generate_architecture_diagram(
             "details": str(e),
             "suggestion": (
                 "Проверьте правильность синтаксиса PlantUML. "
-                "ПОДСКАЗКА: Вызовите инструмент get_plantuml_guide(diagram_type='component') "
-                "для получения справки по синтаксису и стереотипам (<<Core>>, <<Adapter>>, <<Infrastructure>>)."
+                "ПОДСКАЗКА: Вызовите инструмент get_plantuml_guide с нужным типом диаграммы "
+                "(class, sequence, component, activity) для получения справки по синтаксису "
+                "и стереотипам (<<Core>>, <<Adapter>>, <<Infrastructure>>)."
             ),
         }
     except PlantUMLRenderError as e:
@@ -383,8 +384,8 @@ def generate_architecture_diagram(
             "details": str(e),
             "suggestion": (
                 "Проверьте синтаксис PlantUML кода. "
-                "ПОДСКАЗКА: Вызовите инструмент get_plantuml_guide(diagram_type='component') "
-                "для получения справки по правильному синтаксису."
+                "ПОДСКАЗКА: Вызовите инструмент get_plantuml_guide с нужным типом диаграммы "
+                "(class, sequence, component, activity) для получения справки по правильному синтаксису."
             ),
         }
     except FileNotFoundError as e:

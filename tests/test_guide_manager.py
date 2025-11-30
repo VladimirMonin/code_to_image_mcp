@@ -127,7 +127,11 @@ class TestGetGuide:
 
 
 class TestExtractBrief:
-    """Тесты для _extract_brief()."""
+    """Тесты для парсинга brief-секций.
+    
+    Примечание: Тестируем внутреннюю функцию _extract_brief напрямую
+    для проверки граничных случаев парсинга маркеров.
+    """
 
     def test_extract_brief_with_markers(self):
         """_extract_brief должен извлекать текст между маркерами."""
@@ -151,7 +155,11 @@ Some footer
 
 
 class TestExtractDetailed:
-    """Тесты для _extract_detailed()."""
+    """Тесты для парсинга detailed-секций.
+    
+    Примечание: Тестируем внутреннюю функцию _extract_detailed напрямую
+    для проверки граничных случаев парсинга маркеров.
+    """
 
     def test_extract_detailed_with_markers(self):
         """_extract_detailed должен извлекать текст между маркерами."""
