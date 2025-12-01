@@ -405,10 +405,10 @@ line_numbers=False
 
 ### 📖 Полезные ссылки
 
-- **PlantUML документация:** [doc/plantuml_guides/](doc/plantuml_guides/)
-- **Создание тем:** [doc/theme_creation_guide.md](doc/theme_creation_guide.md)
+- **PlantUML документация:** [plantuml_guides/](plantuml_guides/)
+- **Создание тем:** [theme_creation_guide.md](theme_creation_guide.md)
 - **Часто задаваемые вопросы:** [FAQ.md](FAQ.md)
-- **Архитектура проекта:** [doc/developers/architecture.md](doc/developers/architecture.md)
+- **Архитектура проекта:** [developers/architecture.md](developers/architecture.md)
 
 ---
 

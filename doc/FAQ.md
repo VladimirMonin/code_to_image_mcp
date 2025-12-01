@@ -421,6 +421,6 @@ get_plantuml_guide(
 ## Дополнительные ресурсы
 
 - **Решение проблем:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-- **PlantUML гайды:** [doc/plantuml_guides/](doc/plantuml_guides/)
-- **Создание тем:** [doc/theme_creation_guide.md](doc/theme_creation_guide.md)
-- **Архитектура проекта:** [doc/developers/architecture.md](doc/developers/architecture.md)
+- **PlantUML гайды:** [plantuml_guides/](plantuml_guides/)
+- **Создание тем:** [theme_creation_guide.md](theme_creation_guide.md)
+- **Архитектура проекта:** [developers/architecture.md](developers/architecture.md)
